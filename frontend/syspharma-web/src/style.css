@@ -42,18 +42,18 @@ a {
   font-size: 13px;
 }
 
-nav {
+.sidebar-nav {
   display: grid;
   gap: 8px;
 }
 
-nav a {
+.sidebar-nav a {
   padding: 12px 14px;
   border-radius: 8px;
   color: #dbe5f0;
 }
 
-nav a.router-link-active {
+.sidebar-nav a.router-link-active {
   background: #1f8a70;
   color: #fff;
 }
