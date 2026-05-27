@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { api } from '../api/http'; // Ajuste o caminho conforme necessário
+import PageHeader from '../components/PageHeader.vue'; // Componente de cabeçalho reutilizável
+import StatusBadge from '../components/StatusBadge.vue'; // Componente de badge de status reutilizável, para mostrar o estoque com cores diferentes
 
 const produtos = ref([]);
 
@@ -26,7 +28,16 @@ async function salvarProduto() {
     estoque: 0
   };
 
-  await carregarProdutos();
+  function obterQuantidadeEstoque(produto) {
+  return produto.estoque?.quantidade ?? produto.estoque ?? 0;
+    }
+
+  function obterTomEstoque(produto) {
+  return obterQuantidadeEstoque(produto) <= 10 ? 'low' : 'ok';
+      }
+
+
+  await carregarProdutos(); // Recarrega a lista de produtos após salvar um novo produto
 }
 
 onMounted(carregarProdutos);
@@ -34,12 +45,11 @@ onMounted(carregarProdutos);
 
 <template>
   <section>
-    <header class="page-header">
-      <div>
-        <h1>Produtos</h1>
-        <p>Cadastro inicial para testar a interface</p>
-      </div>
-    </header>
+    <PageHeader
+      title="Produtos"
+      subtitle="Cadastro inicial para testar a interface"
+    /> <!-- Uso do componente de cabeçalho, passando o título e a descrição como props -->
+
 
     <form class="card form" @submit.prevent="salvarProduto">
       <input v-model="novoProduto.nome" placeholder="Nome do produto" />
@@ -66,9 +76,9 @@ onMounted(carregarProdutos);
             <td>{{ produto.codigoBarras }}</td>
             <td>R$ {{ produto.precoVenda.toFixed(2) }}</td>
             <td>
-              <span :class="['badge', (produto.estoque?.quantidade ?? produto.estoque ?? 0) <= 10 ? 'low' : 'ok']">
-                        {{ produto.estoque?.quantidade ?? produto.estoque ?? 0 }} un.
-                </span>
+              <StatusBadge :tone="obterTomEstoque(produto)">
+                        {{ obterQuantidadeEstoque(produto) }} un.
+              </StatusBadge>
             </td>
           </tr>
         </tbody>
@@ -104,24 +114,6 @@ th {
 
 tbody tr:hover {
   background: #f8fafc;
-}
-
-.badge {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.badge.ok {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badge.low {
-  background: #fee2e2;
-  color: #991b1b;
 }
 
 @media (max-width: 1000px) {
