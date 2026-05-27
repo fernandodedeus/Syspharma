@@ -14,3 +14,4 @@ dist/
 # Config local
 .env
 appsettings.Development.json
+/backend/SyspharmaApi/appsettings.json
