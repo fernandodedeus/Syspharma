@@ -8,7 +8,7 @@
 
       <nav>
         <RouterLink to="/">Dashboard</RouterLink>
-        <RouterLink to="/produtos">Produtos</RouterLink>
+        <RouterLink to="/produtos">Produtos</RouterLink> 
       </nav>
     </aside>
 

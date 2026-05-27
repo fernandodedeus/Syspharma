@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { api } from '../api/http';
+import { api } from '../api/http'; // Ajuste o caminho conforme necessário
 
 const produtos = ref([]);
 
@@ -12,12 +12,12 @@ const novoProduto = ref({
 });
 
 async function carregarProdutos() {
-  const response = await api.get('/produtos');
+  const response = await api.get('/produtos'); // Ajuste o endpoint conforme necessário
   produtos.value = response.data;
 }
 
 async function salvarProduto() {
-  await api.post('/produtos', novoProduto.value);
+  await api.post('/produtos', novoProduto.value); // Ajuste o endpoint conforme necessário
 
   novoProduto.value = {
     nome: '',
