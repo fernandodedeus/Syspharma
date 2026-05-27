@@ -1,0 +1,16 @@
+﻿# Visual Studio
+.vs/
+*.user
+*.suo
+
+# .NET
+bin/
+obj/
+
+# Node/Vue
+node_modules/
+dist/
+
+# Config local
+.env
+appsettings.Development.json
