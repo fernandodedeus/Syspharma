@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import DashboardPage from '../pages/DashboardPage.vue';
-import ProdutosPage from '../pages/ProdutosPage.vue';
+import DashboardPage from '../pages/DashboardPage.vue'; // Ajuste o caminho conforme necessário
+import ProdutosPage from '../pages/ProdutosPage.vue'; // Ajuste o caminho conforme necessário
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -10,7 +10,7 @@ export const router = createRouter({
       component: DashboardPage
     },
     {
-      path: '/produtos',
+      path: '/produtos', // Rota para a página de produtos
       component: ProdutosPage
     }
   ]

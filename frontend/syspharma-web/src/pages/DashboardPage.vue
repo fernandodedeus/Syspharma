@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { api } from '../api/http';
+import { api } from '../api/http'; // Ajuste o caminho conforme necessário
 
 const resumo = ref({
   totalProdutos: 0,
@@ -10,7 +10,7 @@ const resumo = ref({
 });
 
 onMounted(async () => {
-  const response = await api.get('/dashboard/resumo');
+  const response = await api.get('/dashboard/resumo'); // Ajuste o endpoint conforme necessário
   resumo.value = {
     ...resumo.value,
     ...response.data
