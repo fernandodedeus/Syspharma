@@ -43,9 +43,6 @@ public partial class SyspharmaContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("server=zephyr.proxy.rlwy.net;port=53203;database=syspharma;user id=root;password=yjxxwspRjobfgnEVEnIgawkPBAvWkIbD;SslMode=Required", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.4.0-mysql"));
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
