@@ -1,49 +1,116 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { api } from '../api/http'; // Ajuste o caminho conforme necessário
 import PageHeader from '../components/PageHeader.vue'; // Componente de cabeçalho reutilizável
-import StatusBadge from '../components/StatusBadge.vue'; // Componente de badge de status reutilizável, para mostrar o estoque com cores diferentes
+import ProdutoForm from '../components/ProdutoForm.vue';
+import ProdutosTable from '../components/ProdutosTable.vue';
 
 const produtos = ref([]);
 
-const novoProduto = ref({
-  nome: '',
-  codigoBarras: '',
-  precoVenda: 0,
-  estoque: 0
+
+
+// DADOS MOCKADOS, PARA TESTAR A INTERFACE. NA PRÁTICA, ESSES DADOS VIRIAM DA API, ASSIM COMO O CÓDIGOS DE EDIÇÃO E EXCLUSÃO DE PRODUTOS.
+
+const busca = ref('');
+const carregando = ref(false);
+const erro = ref('');
+
+const produtosMockados = [
+  {
+    id: 1,
+    nome: 'Dipirona 500mg',
+    codigoBarras: '7891000000011',
+    precoVenda: 8.9,
+    estoque: 18
+  },
+  {
+    id: 2,
+    nome: 'Soro fisiológico 500ml',
+    codigoBarras: '7891000000028',
+    precoVenda: 12.5,
+    estoque: 6
+  },
+  {
+    id: 3,
+    nome: 'Vitamina C 1g',
+    codigoBarras: '7891000000035',
+    precoVenda: 24.9,
+    estoque: 32
+  }
+];
+
+const produtosFiltrados = computed(() => {
+  const termo = busca.value.trim().toLowerCase();
+
+  if (!termo) {
+    return produtos.value;
+  }
+
+  return produtos.value.filter((produto) => {
+    return (
+      produto.nome.toLowerCase().includes(termo) ||
+      produto.codigoBarras.toLowerCase().includes(termo)
+    );
+  });
 });
 
+// ----------------------------------------------
+
+
 async function carregarProdutos() {
+  carregando.value = true;
+  erro.value = '';
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    produtos.value = produtosMockados;
+  } catch {
+    erro.value = 'Não foi possível carregar os produtos.';
+  } finally {
+    carregando.value = false;
+  }
+}
+
+// -------------------------------------------------------
+
+/* async function carregarProdutos() {
   const response = await api.get('/produtos'); // Ajuste o endpoint conforme necessário
   produtos.value = response.data;
-}
+} */
 
-async function salvarProduto() {
+/* async function salvarProduto() {
+
   await api.post('/produtos', novoProduto.value); // Ajuste o endpoint conforme necessário
+  await carregarProdutos(); // Recarrega a lista de produtos após salvar um novo produto
 
-  novoProduto.value = {
-    nome: '',
-    codigoBarras: '',
-    precoVenda: 0,
-    estoque: 0
+} */ 
+
+// -------------------------------------------
+async function salvarProduto(produto) {
+  const novoProduto = {
+    id: Date.now(),
+    ...produto
   };
 
-  function obterQuantidadeEstoque(produto) {
-  return produto.estoque?.quantidade ?? produto.estoque ?? 0;
-    }
-
-  function obterTomEstoque(produto) {
-  return obterQuantidadeEstoque(produto) <= 10 ? 'low' : 'ok';
-      }
+  produtos.value = [novoProduto, ...produtos.value];
+}
+// --------------------------------------------
 
 
-  await carregarProdutos(); // Recarrega a lista de produtos após salvar um novo produto
+function editarProduto(produto) { 
+  console.log('Editar produto:', produto); // trocar para api.put quando tiver o endpoint de edição pronto
 }
 
-onMounted(carregarProdutos);
+function excluirProduto(produto) {
+  console.log('Excluir produto:', produto);
+}
+
+onMounted(carregarProdutos); // Carrega a lista de produtos quando o componente for montado
 </script>
 
 <template>
+
+
   <section>
     <PageHeader
       title="Produtos"
@@ -51,79 +118,80 @@ onMounted(carregarProdutos);
     /> <!-- Uso do componente de cabeçalho, passando o título e a descrição como props -->
 
 
-    <form class="card form" @submit.prevent="salvarProduto">
-      <input v-model="novoProduto.nome" placeholder="Nome do produto" />
-      <input v-model="novoProduto.codigoBarras" placeholder="Código de barras" />
-      <input v-model.number="novoProduto.precoVenda" type="number" placeholder="Preço" />
-      <input v-model.number="novoProduto.estoque" type="number" placeholder="Estoque" />
-      <button type="submit">Salvar</button>
-    </form>
+    <ProdutoForm @submit="salvarProduto" /> <!-- Uso do componente de formulário, ouvindo o evento 'submit' para salvar o produto -->
 
-    <section class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Código</th>
-            <th>Preço</th>
-            <th>Estoque</th>
-          </tr>
-        </thead>
 
-        <tbody>
-          <tr v-for="produto in produtos" :key="produto.id">
-            <td>{{ produto.nome }}</td>
-            <td>{{ produto.codigoBarras }}</td>
-            <td>R$ {{ produto.precoVenda.toFixed(2) }}</td>
-            <td>
-              <StatusBadge :tone="obterTomEstoque(produto)">
-                        {{ obterQuantidadeEstoque(produto) }} un.
-              </StatusBadge>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </section>
-</template>
+
+      <!-- Área de busca, para filtrar os produtos por nome ou código de barras -->
+
+              <section class="card products-toolbar">
+                <label class="search-field" for="buscaProduto">
+                  <span>Buscar produto</span>
+                  <input
+                    id="buscaProduto"
+                    v-model="busca"
+                    type="search"
+                    placeholder="Digite nome ou código de barras"
+                  />
+                </label>
+              </section>
+
+                          <p v-if="carregando" class="state-message">
+                              Carregando produtos...
+                            </p>
+
+                            <p v-else-if="erro" class="state-message error">
+                              {{ erro }}
+                            </p>
+
+                            <p v-else-if="!produtosFiltrados.length" class="state-message">
+                              Nenhum produto encontrado.
+                            </p>
+
+                      <ProdutosTable
+                        v-else
+                        :produtos="produtosFiltrados"
+                        @edit="editarProduto"
+                        @delete="excluirProduto"
+                      />
+                </section>
+              </template>
 
 <style scoped>
-.form {
-  display: grid;
-  grid-template-columns: 2fr 1.4fr 1fr 1fr auto;
-  gap: 10px;
+
+.products-toolbar {
   margin-bottom: 18px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-th {
-  color: #64748b;
+.search-field span {
+  color: #475569;
   font-size: 13px;
-  text-align: left;
+  font-weight: 700;
 }
 
-td,
-th {
-  border-bottom: 1px solid #e5eaf0;
-  padding: 14px 10px;
+.search-field input {
+  max-width: 420px;
 }
 
-tbody tr:hover {
-  background: #f8fafc;
+.state-message {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px;
+  padding: 18px;
+  color: #64748b;
 }
 
-@media (max-width: 1000px) {
-  .form {
-    grid-template-columns: 1fr;
-  }
-
-  table {
-    display: block;
-    overflow-x: auto;
-  }
+.state-message.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
 }
+
 </style>

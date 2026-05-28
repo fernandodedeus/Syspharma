@@ -10,7 +10,6 @@ defineProps({
 <template>
   <span :class="['badge', tone]">
     <slot /> <!-- o slot permite que o conteúdo seja passado para o componente -->
-    <StatusBadge tone="ok">20 un.</StatusBadge> <!-- exemplo de uso do componente, passando o tom como prop e o conteúdo como slot -->
   </span>
 </template>
 
