@@ -12,7 +12,7 @@ namespace SyspharmaApi.Helpers
                 {
                     Title = title,
                     Description = description,
-                    ErrorAt = DateTime.Now.AddHours(-3)
+                    ErrorAt = DateTime.UtcNow.AddHours(-3)
                 });
                 await context.SaveChangesAsync();
             }
