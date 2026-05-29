@@ -26,4 +26,6 @@ public partial class User
     public virtual Store? IdstoreNavigation { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
 }

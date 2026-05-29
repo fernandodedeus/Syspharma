@@ -17,3 +17,10 @@ public partial class Config
 
     public sbyte? Canshow { get; set; }
 }
+
+public enum ConfigType
+{
+    AppOnline,
+    AppVersion,
+    ProductionMode
+}
