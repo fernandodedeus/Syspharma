@@ -41,7 +41,7 @@ namespace SyspharmaApi.Controllers
             var existsCpf = await _context.Users.FirstOrDefaultAsync(u => u.Cpf == user.Cpf);
             if (existsCpf is not null)
             {
-                string status = existsCpf.Active ?? false ? "ATIVO" : "INATIVO";
+                string status = existsCpf.Active ? "ATIVO" : "INATIVO";
 
                 return BadRequest($"Já existe um cadastro para o CPF {existsCpf.Cpf} e o tipo de usuário escolhido.\nEmail registrado: {existsCpf.Email}." +
                     $"\nSTATUS do cadastro: {status}");

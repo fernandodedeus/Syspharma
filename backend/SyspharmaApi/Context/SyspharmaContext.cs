@@ -514,6 +514,12 @@ public partial class SyspharmaContext : DbContext
             entity.Property(e => e.Token)
                 .HasMaxLength(512)
                 .HasColumnName("token");
+            entity.Property(e => e.OriginIp)
+                .HasMaxLength(45)
+                .HasColumnName("origin_ip");
+            entity.Property(e => e.UserAgent)
+                .HasMaxLength(455)
+                .HasColumnName("user_agent");
 
             entity.HasOne(d => d.IduserNavigation).WithMany(p => p.UserTokens)
                 .HasForeignKey(d => d.Iduser)

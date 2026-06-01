@@ -14,6 +14,10 @@
 
         public bool Revoked { get; set; }
 
+        public string? OriginIp { get; set; }
+
+        public string? UserAgent { get; set; }
+
         public virtual User IduserNavigation { get; set; } = null!;
     }
 }

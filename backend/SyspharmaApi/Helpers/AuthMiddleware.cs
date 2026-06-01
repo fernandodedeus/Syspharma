@@ -25,17 +25,11 @@ namespace SyspharmaApi.Helpers
 
             List<string> pathWhiteList =
             [
-                "/Auth/getAppMode",
                 "/Auth/login",
                 "/Auth/refresh",
                 "/Auth/register",
-                "/Auth/clearTokens",
-                "/Auth/resetPassword",
-                "/Auth/confirmemail",
-                "/Auth/sendConfirmationEmail",
-                "/Auth/confirmsms",
-                "/Auth/sendConfirmationSms",
-                "/Auth/resetPasswordSms",
+                "/Auth/logout",
+                "/Auth/me",
                 "/swagger",
                 "/Pagbank"
             ];
@@ -100,7 +94,7 @@ namespace SyspharmaApi.Helpers
                     _ = await db.UserTokens.FirstOrDefaultAsync(t => t.Iduser == user.Iduser && !t.Revoked)
                         ?? throw new Exception("Senha expirada. Por favor, faça o login novamente");
 
-                    if (!user.Active ?? false)
+                    if (!user.Active)
                     {
                         string msg = "Cadastro Bloqueado";
 
@@ -122,7 +116,7 @@ namespace SyspharmaApi.Helpers
                 if (cfg is not null)
                 {
                     if (cfg.Value != 1)
-                        details = $"\n\nDetalhes: {ex.Message}";
+                        details = $"\n\nDetalhes: {ex}";
                 }
 
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
