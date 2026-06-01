@@ -35,18 +35,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Store>> PostStore(Store store)
         {
-            try
-            {
-                _context.Stores.Add(store);
-                await _context.SaveChangesAsync();
+            _context.Stores.Add(store);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetStore), new { id = store.Idstore }, store);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"StoreController/PostStore", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetStore), new { id = store.Idstore }, store);
         }
 
         [HttpPut("{id}")]
@@ -81,24 +73,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStore(int id)
         {
-            try
+            var store = await _context.Stores.FindAsync(id);
+            if (store == null)
             {
-                var store = await _context.Stores.FindAsync(id);
-                if (store == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Stores.Remove(store);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"StoreController/DeleteStore/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Stores.Remove(store);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool StoreExists(int id)

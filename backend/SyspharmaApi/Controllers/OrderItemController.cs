@@ -36,18 +36,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderItem>> PostOrderItem(OrderItem orderitem)
         {
-            try
-            {
-                _context.OrderItems.Add(orderitem);
-                await _context.SaveChangesAsync();
+            _context.OrderItems.Add(orderitem);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetOrderItem), new { id = orderitem.Idorderitem }, orderitem);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"OrderItemController/PostOrderItem", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetOrderItem), new { id = orderitem.Idorderitem }, orderitem);
         }
 
         [HttpPut("{id}")]
@@ -82,24 +74,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderItem(int id)
         {
-            try
+            var orderitem = await _context.OrderItems.FindAsync(id);
+            if (orderitem == null)
             {
-                var orderitem = await _context.OrderItems.FindAsync(id);
-                if (orderitem == null)
-                {
-                    return NotFound();
-                }
-
-                _context.OrderItems.Remove(orderitem);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"OrderItemController/DeleteOrderItem/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.OrderItems.Remove(orderitem);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool OrderItemExists(int id)

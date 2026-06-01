@@ -35,18 +35,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            try
-            {
-                _context.Products.Add(product);
-                await _context.SaveChangesAsync();
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetProduct), new { id = product.Idproduct }, product);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"ProductController/PostProduct", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Idproduct }, product);
         }
 
         [HttpPut("{id}")]
@@ -81,24 +73,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            try
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
             {
-                var product = await _context.Products.FindAsync(id);
-                if (product == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"ProductController/DeleteProduct/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool ProductExists(int id)

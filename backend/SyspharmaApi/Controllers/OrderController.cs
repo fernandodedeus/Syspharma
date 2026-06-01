@@ -36,18 +36,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            try
-            {
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetOrder), new { id = order.Idorder }, order);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"OrderController/PostOrder", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Idorder }, order);
         }
 
         [HttpPut("{id}")]
@@ -82,24 +74,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            try
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
-                var order = await _context.Orders.FindAsync(id);
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Orders.Remove(order);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"OrderController/DeleteOrder/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool OrderExists(int id)

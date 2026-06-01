@@ -36,18 +36,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Inventory>> PostInventory(Inventory inventory)
         {
-            try
-            {
-                _context.Inventories.Add(inventory);
-                await _context.SaveChangesAsync();
+            _context.Inventories.Add(inventory);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetInventory), new { id = inventory.Idinventory }, inventory);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"InventoryController/PostInventory", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetInventory), new { id = inventory.Idinventory }, inventory);
         }
 
         [HttpPut("{id}")]
@@ -82,24 +74,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInventory(int id)
         {
-            try
+            var inventory = await _context.Inventories.FindAsync(id);
+            if (inventory == null)
             {
-                var inventory = await _context.Inventories.FindAsync(id);
-                if (inventory == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Inventories.Remove(inventory);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"InventoryController/DeleteInventory/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Inventories.Remove(inventory);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool InventoryExists(int id)

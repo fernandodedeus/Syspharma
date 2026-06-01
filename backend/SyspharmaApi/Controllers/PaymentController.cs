@@ -36,18 +36,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Payment>> PostPayment(Payment payment)
         {
-            try
-            {
-                _context.Payments.Add(payment);
-                await _context.SaveChangesAsync();
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetPayment), new { id = payment.Idpayment }, payment);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"PaymentController/PostPayment", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetPayment), new { id = payment.Idpayment }, payment);
         }
 
         [HttpPut("{id}")]
@@ -82,24 +74,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(int id)
         {
-            try
+            var payment = await _context.Payments.FindAsync(id);
+            if (payment == null)
             {
-                var payment = await _context.Payments.FindAsync(id);
-                if (payment == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Payments.Remove(payment);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"PaymentController/DeletePayment/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Payments.Remove(payment);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool PaymentExists(int id)

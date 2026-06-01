@@ -35,18 +35,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductBatch>> PostProductBatch(ProductBatch productbatch)
         {
-            try
-            {
-                _context.ProductBatches.Add(productbatch);
-                await _context.SaveChangesAsync();
+            _context.ProductBatches.Add(productbatch);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetProductBatch), new { id = productbatch.Idbatch }, productbatch);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"ProductBatchController/PostProductBatch", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetProductBatch), new { id = productbatch.Idbatch }, productbatch);
         }
 
         [HttpPut("{id}")]
@@ -81,24 +73,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductBatch(int id)
         {
-            try
+            var productbatch = await _context.ProductBatches.FindAsync(id);
+            if (productbatch == null)
             {
-                var productbatch = await _context.ProductBatches.FindAsync(id);
-                if (productbatch == null)
-                {
-                    return NotFound();
-                }
-
-                _context.ProductBatches.Remove(productbatch);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"ProductBatchController/DeleteProductBatch/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.ProductBatches.Remove(productbatch);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool ProductBatchExists(int id)

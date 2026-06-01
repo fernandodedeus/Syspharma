@@ -36,18 +36,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<InventoryMovement>> PostInventoryMovement(InventoryMovement inventorymovement)
         {
-            try
-            {
-                _context.InventoryMovements.Add(inventorymovement);
-                await _context.SaveChangesAsync();
+            _context.InventoryMovements.Add(inventorymovement);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetInventoryMovement), new { id = inventorymovement.IdinventoryMovement }, inventorymovement);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"InventoryMovementController/PostInventoryMovement", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetInventoryMovement), new { id = inventorymovement.IdinventoryMovement }, inventorymovement);
         }
 
         [HttpPut("{id}")]
@@ -82,24 +74,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInventoryMovement(int id)
         {
-            try
+            var inventorymovement = await _context.InventoryMovements.FindAsync(id);
+            if (inventorymovement == null)
             {
-                var inventorymovement = await _context.InventoryMovements.FindAsync(id);
-                if (inventorymovement == null)
-                {
-                    return NotFound();
-                }
-
-                _context.InventoryMovements.Remove(inventorymovement);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"InventoryMovementController/DeleteInventoryMovement/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.InventoryMovements.Remove(inventorymovement);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool InventoryMovementExists(int id)

@@ -35,18 +35,10 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Supplier>> PostSupplier(Supplier supplier)
         {
-            try
-            {
-                _context.Suppliers.Add(supplier);
-                await _context.SaveChangesAsync();
+            _context.Suppliers.Add(supplier);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetSupplier), new { id = supplier.Idsupplier }, supplier);
-            }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"SupplierController/PostSupplier", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+            return CreatedAtAction(nameof(GetSupplier), new { id = supplier.Idsupplier }, supplier);
         }
 
         [HttpPut("{id}")]
@@ -81,24 +73,16 @@ namespace SyspharmaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSupplier(int id)
         {
-            try
+            var supplier = await _context.Suppliers.FindAsync(id);
+            if (supplier == null)
             {
-                var supplier = await _context.Suppliers.FindAsync(id);
-                if (supplier == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Suppliers.Remove(supplier);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                await ErrorLogger.Log(_context, $"SupplierController/DeleteSupplier/id={id}", ex.Message);
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
+
+            _context.Suppliers.Remove(supplier);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool SupplierExists(int id)
