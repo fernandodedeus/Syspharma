@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { api } from '../api/http'; // Ajuste o caminho conforme necessário
+//import { api } from '../api/http'; // Ajuste o caminho conforme necessário
 import PageHeader from '../components/PageHeader.vue'; // Componente de cabeçalho reutilizável
 import MetricCard from '../components/MetricCard.vue'; // Componente de card de métrica reutilizável, para mostrar os números principais do dashboard
 import InfoCard from '../components/InfoCard.vue'; // Componente de card de informação reutilizável, para mostrar listas ou detalhes no dashboard
+import { resumoDashboardMockado } from '../mocks/dashboardMock'; // Dados mockados para testar a interface, na prática esses dados viriam da API
 
 const resumo = ref({
   totalProdutos: 0,
@@ -11,6 +12,9 @@ const resumo = ref({
   estoqueBaixo: 0,
   campanhasAtivas: 0
 });
+
+const carregando = ref(false);
+const erro = ref('');
 
 const alertasValidade = ref([ // Esses dados estão fixos aqui só para mostrar como seria a interface, na prática eles deveriam vir da API, assim como os números do resumo lá em cima. /
   {
@@ -30,13 +34,30 @@ const alertasValidade = ref([ // Esses dados estão fixos aqui só para mostrar 
   }
 ]);
 
-onMounted(async () => {
+/* onMounted(async () => {
   const response = await api.get('/dashboard/resumo'); // Ajuste o endpoint conforme necessário
   resumo.value = {
     ...resumo.value,
     ...response.data
   };
-});
+}); */
+
+onMounted(async () => {
+  carregando.value = true;
+  erro.value = '';
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simula um atraso de 1 segundo para mostrar o carregamento
+    resumo.value = {
+      ...resumo.value,
+      ...resumoDashboardMockado
+    };
+  } catch (error) {
+    erro.value = 'Não foi possível carregar o resumo do dashboard.';
+  } finally {
+    carregando.value = false;
+  }
+})
 </script>
 
 <template>
@@ -47,9 +68,16 @@ onMounted(async () => {
         subtitle="Resumo operacional da farmácia"
       /> <!-- Uso do componente de cabeçalho, passando o título e a descrição como props -->
 
+      <p v-if="carregando" class="state-message">
+        Carregando resumo...
+      </p>
+
+      <p v-else-if="erro" class="state-message error">
+        {{ erro }}
+      </p>
 
 
-
+ <template v-else> <!-- Só mostra o conteúdo do dashboard se não estiver carregando e não tiver erro -->
     <section class="metrics"> <!-- área de métricas principais, usando o componente MetricCard para mostrar os números mais importantes do dashboard -->
 
       <MetricCard
@@ -75,8 +103,9 @@ onMounted(async () => {
         tone="success"
       />
         
+     
     </section>
-
+  </template>
 
 
     <section class="grid">
@@ -179,6 +208,21 @@ li + li {
 .empty-state {
   margin: 0;
   color: #64748b;
+}
+
+.state-message {
+  margin: 0 0 18px;
+  background: #fff;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px;
+  padding: 18px;
+  color: #64748b;
+}
+
+.state-message.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 </style>
