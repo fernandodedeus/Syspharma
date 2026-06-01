@@ -43,6 +43,9 @@ public partial class SyspharmaContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserToken> UserTokens { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -486,6 +489,36 @@ public partial class SyspharmaContext : DbContext
             entity.HasOne(d => d.IdstoreNavigation).WithMany(p => p.Users)
                 .HasForeignKey(d => d.Idstore)
                 .HasConstraintName("fk_user_store");
+        });
+
+        modelBuilder.Entity<UserToken>(entity =>
+        {
+            entity.HasKey(e => e.Idusertoken).HasName("PRIMARY");
+
+            entity.ToTable("user_token");
+
+            entity.HasIndex(e => e.Iduser, "fk_usertokens_user_idx");
+
+            entity.Property(e => e.Idusertoken).HasColumnName("idusertoken");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnType("datetime")
+                .HasColumnName("expires_at");
+            entity.Property(e => e.Iduser).HasColumnName("iduser");
+            entity.Property(e => e.Revoked)                
+                .IsRequired()
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("revoked");
+            entity.Property(e => e.Token)
+                .HasMaxLength(512)
+                .HasColumnName("token");
+
+            entity.HasOne(d => d.IduserNavigation).WithMany(p => p.UserTokens)
+                .HasForeignKey(d => d.Iduser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_usertokens_user");
         });
 
         OnModelCreatingPartial(modelBuilder);
