@@ -59,6 +59,7 @@ public sealed class AuthService(
             .ToListAsync();
 
         existingTokens.ForEach(x => x.Revoked = true);
+        await _db.SaveChangesAsync();
 
         _logger.LogInformation("Login completed: {UserId} {Email}", user.Iduser, user.Email);
         return await GenerateAuthResponseAsync(user, ip, userAgent);
