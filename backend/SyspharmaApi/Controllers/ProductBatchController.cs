@@ -9,7 +9,7 @@ namespace SyspharmaApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class ProductBatchBatchController(SyspharmaContext context) : ControllerBase
+    public class ProductBatchController(SyspharmaContext context) : ControllerBase
     {
         private readonly SyspharmaContext _context = context;
 
