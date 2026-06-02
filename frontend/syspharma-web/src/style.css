@@ -20,10 +20,16 @@ a {
   grid-template-columns: 250px 1fr;
 }
 
+.app-shell-login {
+  grid-template-columns: 1fr;
+}
+
 .sidebar {
   background: #102033;
   color: #fff;
   padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
 }
 
 .brand {
@@ -56,6 +62,23 @@ a {
 .sidebar-nav a.router-link-active {
   background: #1f8a70;
   color: #fff;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  color: #dbe5f0;
+  font-size: 13px;
+}
+
+.logout-button {
+  background: #22364f;
+  text-align: left;
+}
+
+.logout-button:hover {
+  background: #2c4564;
 }
 
 .content {

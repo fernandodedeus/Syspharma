@@ -1,10 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-//import { api } from '../api/http'; // Ajuste o caminho conforme necessário
-import PageHeader from '../components/PageHeader.vue'; // Componente de cabeçalho reutilizável
-import MetricCard from '../components/MetricCard.vue'; // Componente de card de métrica reutilizável, para mostrar os números principais do dashboard
-import InfoCard from '../components/InfoCard.vue'; // Componente de card de informação reutilizável, para mostrar listas ou detalhes no dashboard
-import { resumoDashboardMockado } from '../mocks/dashboardMock'; // Dados mockados para testar a interface, na prática esses dados viriam da API
+import { getProducts } from '../api/products';
+import PageHeader from '../components/PageHeader.vue';
+import MetricCard from '../components/MetricCard.vue';
+import InfoCard from '../components/InfoCard.vue';
 
 const resumo = ref({
   totalProdutos: 0,
@@ -15,102 +14,74 @@ const resumo = ref({
 
 const carregando = ref(false);
 const erro = ref('');
-
-const alertasValidade = ref([ // Esses dados estão fixos aqui só para mostrar como seria a interface, na prática eles deveriam vir da API, assim como os números do resumo lá em cima. /
-  {
-    id: 1,
-    produto: 'Dipirona 500mg',
-    diasParaVencer: 0
-  },
-  {
-    id: 2,
-    produto: 'Soro fisiológico',
-    diasParaVencer: 0
-  },
-  {
-    id: 3,
-    produto: 'Vitamina C',
-    diasParaVencer: 0
-  }
-]);
-
-/* onMounted(async () => {
-  const response = await api.get('/dashboard/resumo'); // Ajuste o endpoint conforme necessário
-  resumo.value = {
-    ...resumo.value,
-    ...response.data
-  };
-}); */
+const alertasValidade = ref([]);
 
 onMounted(async () => {
   carregando.value = true;
   erro.value = '';
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Simula um atraso de 1 segundo para mostrar o carregamento
+    const produtos = await getProducts();
+
     resumo.value = {
-      ...resumo.value,
-      ...resumoDashboardMockado
+      totalProdutos: produtos.length,
+      produtosVencendo: 0,
+      estoqueBaixo: produtos.filter((produto) => Number(produto.estoque) <= 10).length,
+      campanhasAtivas: 0
     };
-  } catch (error) {
-    erro.value = 'Não foi possível carregar o resumo do dashboard.';
+
+    alertasValidade.value = [];
+  } catch {
+    erro.value = 'Nao foi possivel carregar o resumo do dashboard.';
   } finally {
     carregando.value = false;
   }
-})
+});
 </script>
 
 <template>
   <section>
+    <PageHeader
+      title="Dashboard"
+      subtitle="Resumo operacional da farmacia"
+    />
 
-      <PageHeader 
-        title="Dashboard"
-        subtitle="Resumo operacional da farmácia"
-      /> <!-- Uso do componente de cabeçalho, passando o título e a descrição como props -->
+    <p v-if="carregando" class="state-message">
+      Carregando resumo...
+    </p>
 
-      <p v-if="carregando" class="state-message">
-        Carregando resumo...
-      </p>
+    <p v-else-if="erro" class="state-message error">
+      {{ erro }}
+    </p>
 
-      <p v-else-if="erro" class="state-message error">
-        {{ erro }}
-      </p>
+    <template v-else>
+      <section class="metrics">
+        <MetricCard
+          label="Produtos cadastrados"
+          :value="resumo.totalProdutos"
+        />
 
+        <MetricCard
+          label="Proximos ao vencimento"
+          :value="resumo.produtosVencendo"
+          tone="warning"
+        />
 
- <template v-else> <!-- Só mostra o conteúdo do dashboard se não estiver carregando e não tiver erro -->
-    <section class="metrics"> <!-- área de métricas principais, usando o componente MetricCard para mostrar os números mais importantes do dashboard -->
+        <MetricCard
+          label="Estoque baixo"
+          :value="resumo.estoqueBaixo"
+          tone="danger"
+        />
 
-      <MetricCard
-        label="Produtos cadastrados"
-        :value="resumo.totalProdutos" 
-      /> <!-- O : significa que estamos passando uma variável JavaScript, não um texto fixo -->
+        <MetricCard
+          label="Campanhas ativas"
+          :value="resumo.campanhasAtivas"
+          tone="success"
+        />
+      </section>
 
-      <MetricCard
-        label="Próximos ao vencimento"
-        :value="resumo.produtosVencendo" 
-        tone="warning"
-      />
-
-      <MetricCard
-        label="Estoque baixo"
-        :value="resumo.estoqueBaixo"
-        tone="danger"
-      />
-
-      <MetricCard
-        label="Campanhas ativas"
-        :value="resumo.campanhasAtivas"
-        tone="success"
-      />
-        
-     
-    </section>
-  </template>
-
-
-    <section class="grid">
-      <InfoCard title="Alertas de validade">
-
+      <section class="grid">
+        <InfoCard title="Alertas de validade">
           <ul v-if="alertasValidade.length">
             <li v-for="alerta in alertasValidade" :key="alerta.id">
               {{ alerta.produto }} vence em {{ alerta.diasParaVencer }} dias
@@ -118,19 +89,19 @@ onMounted(async () => {
           </ul>
 
           <p v-else class="empty-state">
-            Nenhum produto próximo do vencimento.
+            Nenhum produto proximo do vencimento.
           </p>
+        </InfoCard>
 
-      </InfoCard>
-
-      <InfoCard title="Próximas ações">
-        <ul>
-          <li>Revisar estoque mínimo</li>
-          <li>Criar campanha para produtos próximos do vencimento</li>
-          <li>Atualizar cadastro de clientes recorrentes</li>
-        </ul>
-      </InfoCard>
-    </section>
+        <InfoCard title="Proximas acoes">
+          <ul>
+            <li>Revisar estoque minimo</li>
+            <li>Atualizar cadastro de produtos</li>
+            <li>Conferir clientes recorrentes</li>
+          </ul>
+        </InfoCard>
+      </section>
+    </template>
   </section>
 </template>
 
@@ -140,46 +111,6 @@ onMounted(async () => {
   grid-template-columns: repeat(4, minmax(160px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
-}
-
-.metric-card {
-  min-height: 126px;
-  background: #fff;
-  border: 1px solid #e1e7ef;
-  border-left: 5px solid #1f8a70;
-  border-radius: 8px;
-  padding: 18px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.metric-card span {
-  display: block;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.metric-card strong {
-  font-size: clamp(26px, 3vw, 34px);
-  line-height: 1.1;
-  overflow-wrap: anywhere;
-}
-
-.metric-card.warning {
-  border-left-color: #d97706;
-}
-
-.metric-card.danger {
-  border-left-color: #dc2626;
-}
-
-.metric-card.success {
-  border-left-color: #16a34a;
 }
 
 .grid {
@@ -196,13 +127,6 @@ ul {
 
 li + li {
   margin-top: 8px;
-}
-
-@media (max-width: 1000px) {
-  .metrics,
-  .grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .empty-state {
@@ -225,4 +149,10 @@ li + li {
   color: #991b1b;
 }
 
+@media (max-width: 1000px) {
+  .metrics,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
