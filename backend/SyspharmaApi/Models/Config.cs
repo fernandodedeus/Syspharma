@@ -20,7 +20,7 @@ public partial class Config
 
 public enum ConfigType
 {
-    AppOnline,
+    AppOnline = 1,
     AppVersion,
     ProductionMode
 }
