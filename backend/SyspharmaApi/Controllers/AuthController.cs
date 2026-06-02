@@ -46,6 +46,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -64,6 +65,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

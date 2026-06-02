@@ -28,8 +28,6 @@ namespace SyspharmaApi.Helpers
                 "/Auth/login",
                 "/Auth/refresh",
                 "/Auth/register",
-                "/Auth/logout",
-                "/Auth/me",
                 "/swagger",
                 "/Pagbank"
             ];
