@@ -54,7 +54,11 @@ public sealed class AuthService(
             throw new UnauthorizedAccessException("Conta bloqueada ou inativa.");
         }
 
-        await _db.SaveChangesAsync();
+        var existingTokens = await _db.UserTokens
+            .Where(x =>x.Iduser == user.Iduser && !x.Revoked)
+            .ToListAsync();
+
+        existingTokens.ForEach(x => x.Revoked = true);
 
         _logger.LogInformation("Login completed: {UserId} {Email}", user.Iduser, user.Email);
         return await GenerateAuthResponseAsync(user, ip, userAgent);
