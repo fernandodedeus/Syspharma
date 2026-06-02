@@ -9,7 +9,7 @@ namespace SyspharmaApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class InventoryMovementMovementController(SyspharmaContext context) : ControllerBase
+    public class InventoryMovementController(SyspharmaContext context) : ControllerBase
     {
 
         private readonly SyspharmaContext _context = context;
