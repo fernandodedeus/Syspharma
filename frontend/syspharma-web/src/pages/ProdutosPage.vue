@@ -1,20 +1,21 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { api } from '../api/http'; // Ajuste o caminho conforme necessário
-import PageHeader from '../components/PageHeader.vue'; // Componente de cabeçalho reutilizável
+import {
+  createProduct,
+  deleteProduct,
+  getProducts,
+  updateProduct
+} from '../api/products';
+import PageHeader from '../components/PageHeader.vue';
 import ProdutoForm from '../components/ProdutoForm.vue';
 import ProdutosTable from '../components/ProdutosTable.vue';
-import { produtosMockados } from '../mocks/produtosMock'; // Dados mockados para testar a interface, na prática esses dados viriam da API
 
 const produtos = ref([]);
-
-
-
-// DADOS MOCKADOS, PARA TESTAR A INTERFACE. NA PRÁTICA, ESSES DADOS VIRIAM DA API, ASSIM COMO O CÓDIGOS DE EDIÇÃO E EXCLUSÃO DE PRODUTOS.
-
 const busca = ref('');
 const carregando = ref(false);
+const salvando = ref(false);
 const erro = ref('');
+const produtoEmEdicao = ref(null);
 
 const produtosFiltrados = computed(() => {
   const termo = busca.value.trim().toLowerCase();
@@ -31,114 +32,130 @@ const produtosFiltrados = computed(() => {
   });
 });
 
-// ----------------------------------------------
-
-
 async function carregarProdutos() {
   carregando.value = true;
   erro.value = '';
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    produtos.value = produtosMockados;
+    produtos.value = await getProducts();
   } catch {
-    erro.value = 'Não foi possível carregar os produtos.';
+    erro.value = 'Nao foi possivel carregar os produtos.';
   } finally {
     carregando.value = false;
   }
 }
 
-// -------------------------------------------------------
-
-/* async function carregarProdutos() {
-  const response = await api.get('/produtos'); // Ajuste o endpoint conforme necessário
-  produtos.value = response.data;
-} */
-
-/* async function salvarProduto() {
-
-  await api.post('/produtos', novoProduto.value); // Ajuste o endpoint conforme necessário
-  await carregarProdutos(); // Recarrega a lista de produtos após salvar um novo produto
-
-} */ 
-
-// -------------------------------------------
 async function salvarProduto(produto) {
-  const novoProduto = {
-    id: Date.now(),
+  salvando.value = true;
+  erro.value = '';
+
+  try {
+    if (produtoEmEdicao.value) {
+      const produtoAtualizado = {
+        ...produtoEmEdicao.value,
+        ...produto
+      };
+
+      await updateProduct(produtoAtualizado);
+      await carregarProdutos();
+      produtoEmEdicao.value = null;
+      return;
+    }
+
+    const produtoCriado = await createProduct(productWithDefaults(produto));
+    produtos.value = [produtoCriado, ...produtos.value];
+  } catch {
+    erro.value = 'Nao foi possivel salvar o produto.';
+  } finally {
+    salvando.value = false;
+  }
+}
+
+function productWithDefaults(produto) {
+  return {
+    custo: 0,
     ...produto
   };
-
-  produtos.value = [novoProduto, ...produtos.value];
-}
-// --------------------------------------------
-
-
-function editarProduto(produto) { 
-  console.log('Editar produto:', produto); // trocar para api.put quando tiver o endpoint de edição pronto
 }
 
-function excluirProduto(produto) {
-  console.log('Excluir produto:', produto);
+function editarProduto(produto) {
+  produtoEmEdicao.value = produto;
 }
 
-onMounted(carregarProdutos); // Carrega a lista de produtos quando o componente for montado
+async function excluirProduto(produto) {
+  const confirmar = window.confirm(`Excluir ${produto.nome}?`);
+
+  if (!confirmar) {
+    return;
+  }
+
+  erro.value = '';
+
+  try {
+    await deleteProduct(produto.id);
+    produtos.value = produtos.value.filter((item) => item.id !== produto.id);
+  } catch {
+    erro.value = 'Nao foi possivel excluir o produto.';
+  }
+}
+
+onMounted(carregarProdutos);
 </script>
 
 <template>
-
-
   <section>
     <PageHeader
       title="Produtos"
-      subtitle="Cadastro inicial para testar a interface"
-    /> <!-- Uso do componente de cabeçalho, passando o título e a descrição como props -->
+      subtitle="Cadastro integrado com a API"
+    />
 
+    <p v-if="produtoEmEdicao" class="edit-message">
+      Editando {{ produtoEmEdicao.nome }}. Envie o formulario para atualizar.
+    </p>
 
-    <ProdutoForm @submit="salvarProduto" /> <!-- Uso do componente de formulário, ouvindo o evento 'submit' para salvar o produto -->
+    <ProdutoForm
+      :loading="salvando"
+      :initial-product="produtoEmEdicao"
+      @submit="salvarProduto"
+      @cancel="produtoEmEdicao = null"
+    />
 
+    <section class="card products-toolbar">
+      <label class="search-field" for="buscaProduto">
+        <span>Buscar produto</span>
+        <input
+          id="buscaProduto"
+          v-model="busca"
+          type="search"
+          placeholder="Digite nome ou codigo"
+        />
+      </label>
+    </section>
 
+    <p v-if="carregando" class="state-message">
+      Carregando produtos...
+    </p>
 
-      <!-- Área de busca, para filtrar os produtos por nome ou código de barras -->
+    <p v-else-if="erro" class="state-message error">
+      {{ erro }}
+    </p>
 
-              <section class="card products-toolbar">
-                <label class="search-field" for="buscaProduto">
-                  <span>Buscar produto</span>
-                  <input
-                    id="buscaProduto"
-                    v-model="busca"
-                    type="search"
-                    placeholder="Digite nome ou código de barras"
-                  />
-                </label>
-              </section>
+    <p v-else-if="!produtosFiltrados.length" class="state-message">
+      Nenhum produto encontrado.
+    </p>
 
-                          <p v-if="carregando" class="state-message">
-                              Carregando produtos...
-                            </p>
-
-                            <p v-else-if="erro" class="state-message error">
-                              {{ erro }}
-                            </p>
-
-                            <p v-else-if="!produtosFiltrados.length" class="state-message">
-                              Nenhum produto encontrado.
-                            </p>
-
-                      <ProdutosTable
-                        v-else
-                        :produtos="produtosFiltrados"
-                        @edit="editarProduto"
-                        @delete="excluirProduto"
-                      />
-                      
-                </section>
-
-              </template>
+    <ProdutosTable
+      v-else
+      :produtos="produtosFiltrados"
+      @edit="editarProduto"
+      @delete="excluirProduto"
+    />
+  </section>
+</template>
 
 <style scoped>
-
-.products-toolbar {
+.products-toolbar,
+.edit-message {
   margin-bottom: 18px;
 }
 
@@ -158,8 +175,9 @@ onMounted(carregarProdutos); // Carrega a lista de produtos quando o componente 
   max-width: 420px;
 }
 
+.edit-message,
 .state-message {
-  margin: 0;
+  margin-top: 0;
   background: #fff;
   border: 1px solid #e1e7ef;
   border-radius: 8px;
@@ -172,5 +190,4 @@ onMounted(carregarProdutos); // Carrega a lista de produtos quando o componente 
   background: #fef2f2;
   color: #991b1b;
 }
-
 </style>

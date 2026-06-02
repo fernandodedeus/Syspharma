@@ -15,3 +15,6 @@ dist/
 .env
 appsettings.Development.json
 /backend/SyspharmaApi/appsettings.json
+
+# Local logs
+*.log

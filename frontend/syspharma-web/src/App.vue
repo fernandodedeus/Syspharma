@@ -1,13 +1,18 @@
 <script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import AppSidebar from './components/AppSidebar.vue';
+
+const route = useRoute();
+const isLoginPage = computed(() => route.path === '/login');
 </script>
-<!-- O App.vue é o layout principal da aplicação, ele é responsável por renderizar o menu lateral e a área de conteúdo onde as páginas serão exibidas -->
+
 <template>
-  <div class="app-shell">
-    <AppSidebar /> <!-- Componente do menu lateral, que fica fixo em todas as páginas -->
+  <div class="app-shell" :class="{ 'app-shell-login': isLoginPage }">
+    <AppSidebar v-if="!isLoginPage" />
 
     <main class="content">
-      <RouterView /> <!-- Componente do Vue Router que renderiza a página correspondente à rota atual -->
+      <RouterView />
     </main>
   </div>
 </template>
