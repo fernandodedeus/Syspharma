@@ -43,7 +43,7 @@ onMounted(async () => {
   <section>
     <PageHeader
       title="Dashboard"
-      subtitle="Resumo operacional da farmacia"
+      subtitle="Resumo operacional da farmácia"
     />
 
     <p v-if="carregando" class="state-message">
@@ -62,7 +62,7 @@ onMounted(async () => {
         />
 
         <MetricCard
-          label="Proximos ao vencimento"
+          label="Próximos ao vencimento"
           :value="resumo.produtosVencendo"
           tone="warning"
         />
@@ -89,11 +89,11 @@ onMounted(async () => {
           </ul>
 
           <p v-else class="empty-state">
-            Nenhum produto proximo do vencimento.
+            Nenhum produto próximo do vencimento.
           </p>
         </InfoCard>
 
-        <InfoCard title="Proximas acoes">
+        <InfoCard title="Próximas ações">
           <ul>
             <li>Revisar estoque minimo</li>
             <li>Atualizar cadastro de produtos</li>

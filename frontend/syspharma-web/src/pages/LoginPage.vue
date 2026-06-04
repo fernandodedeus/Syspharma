@@ -30,7 +30,7 @@ async function submitLogin() {
     <form class="card login-card" @submit.prevent="submitLogin">
       <div class="login-heading">
         <strong>Syspharma</strong>
-        <span>Acesse sua operacao</span>
+        <span>Acesse sua operação</span>
       </div>
 
       <label class="login-field" for="email">
