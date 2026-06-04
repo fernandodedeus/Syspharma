@@ -56,9 +56,9 @@ watch(
 
 function validarFormulario() {
   erros.nome = produto.nome.trim() ? '' : 'Informe o nome do produto.';
-  erros.codigoBarras = produto.codigoBarras.trim() ? '' : 'Informe o codigo.';
-  erros.precoVenda = Number(produto.precoVenda) > 0 ? '' : 'Informe um preco maior que zero.';
-  erros.estoque = Number(produto.estoque) >= 0 ? '' : 'O estoque nao pode ser negativo.';
+  erros.codigoBarras = produto.codigoBarras.trim() ? '' : 'Informe o código.';
+  erros.precoVenda = Number(produto.precoVenda) > 0 ? '' : 'Informe um preço maior que zero.';
+  erros.estoque = Number(produto.estoque) >= 0 ? '' : 'O estoque não pode ser negativo.';
 
   return formularioValido.value;
 }
@@ -110,14 +110,14 @@ function cancelarEdicao() {
     <FormField
       id="codigoBarras"
       v-model="produto.codigoBarras"
-      label="Codigo"
+      label="Código"
       :error="erros.codigoBarras"
     />
 
     <FormField
       id="precoVenda"
       v-model="produto.precoVenda"
-      label="Preco (R$)"
+      label="Preço (R$)"
       type="number"
       :error="erros.precoVenda"
     />

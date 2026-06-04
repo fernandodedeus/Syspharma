@@ -39,7 +39,7 @@ async function carregarProdutos() {
   try {
     produtos.value = await getProducts();
   } catch {
-    erro.value = 'Nao foi possivel carregar os produtos.';
+    erro.value = 'Não foi possivel carregar os produtos.';
   } finally {
     carregando.value = false;
   }
@@ -65,7 +65,7 @@ async function salvarProduto(produto) {
     const produtoCriado = await createProduct(productWithDefaults(produto));
     produtos.value = [produtoCriado, ...produtos.value];
   } catch {
-    erro.value = 'Nao foi possivel salvar o produto.';
+    erro.value = 'Não foi possível salvar o produto.';
   } finally {
     salvando.value = false;
   }
@@ -95,7 +95,7 @@ async function excluirProduto(produto) {
     await deleteProduct(produto.id);
     produtos.value = produtos.value.filter((item) => item.id !== produto.id);
   } catch {
-    erro.value = 'Nao foi possivel excluir o produto.';
+    erro.value = 'Não foi possível excluir o produto.';
   }
 }
 
@@ -127,7 +127,7 @@ onMounted(carregarProdutos);
           id="buscaProduto"
           v-model="busca"
           type="search"
-          placeholder="Digite nome ou codigo"
+          placeholder="Digite nome ou código"
         />
       </label>
     </section>
