@@ -25,6 +25,7 @@ async function handleLogout() {
     <nav class="sidebar-nav">
       <RouterLink to="/">Dashboard</RouterLink>
       <RouterLink to="/produtos">Produtos</RouterLink>
+      <RouterLink to="/validades">Validades</RouterLink>
     </nav>
 
     <div class="sidebar-footer">

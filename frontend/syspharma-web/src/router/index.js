@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import DashboardPage from '../pages/DashboardPage.vue';
 import LoginPage from '../pages/LoginPage.vue';
 import ProdutosPage from '../pages/ProdutosPage.vue';
+import ValidadesPage from '../pages/ValidadesPage.vue';
 import { useAuthStore } from '../stores/authStore';
 
 export const router = createRouter({
@@ -19,6 +20,10 @@ export const router = createRouter({
     {
       path: '/produtos',
       component: ProdutosPage
+    },
+    {
+      path: '/validades',
+      component: ValidadesPage
     }
   ]
 });
