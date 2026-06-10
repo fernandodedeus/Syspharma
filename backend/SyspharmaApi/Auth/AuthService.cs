@@ -68,20 +68,21 @@ public sealed class AuthService(
     public async Task<AuthResponse> RefreshAsync(string refreshToken, string? ip, string? userAgent)
     {
         var tokenHash = _tokenService.HashRefreshToken(refreshToken);
+
         var existingToken = await _db.UserTokens
-            .Include(token => token.Iduser)
-            .FirstOrDefaultAsync(token => token.Token == tokenHash) 
-            ?? throw new UnauthorizedAccessException("Refresh token invalido.");
-
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Iduser == existingToken.Iduser)
-            ?? throw new UnauthorizedAccessException("Usuário não identificado");
-
-        await RevokeAllTokensAsync(existingToken.Iduser);
+            .FirstOrDefaultAsync(token => token.Token == tokenHash)
+            ?? throw new UnauthorizedAccessException("Refresh token inválido.");
 
         if (existingToken.ExpiresAt < DateTime.UtcNow)
         {
             throw new UnauthorizedAccessException("Refresh token expirado.");
         }
+
+        var user = await _db.Users
+            .FirstOrDefaultAsync(u => u.Iduser == existingToken.Iduser)
+            ?? throw new UnauthorizedAccessException("Usuário não identificado.");
+
+        await RevokeAllTokensAsync(existingToken.Iduser);
 
         var newPlainToken = _tokenService.GenerateRefreshToken();
         var newTokenHash = _tokenService.HashRefreshToken(newPlainToken);
@@ -98,7 +99,7 @@ public sealed class AuthService(
 
         _db.UserTokens.Add(newRefreshToken);
         await _db.SaveChangesAsync();
-        
+
         var accessToken = _tokenService.GenerateAccessToken(user);
 
         return new AuthResponse(

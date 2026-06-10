@@ -75,12 +75,20 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         {
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers.UserAgent.ToString();
-            var response = await _authService.RefreshAsync(request.RefreshToken, ip, userAgent);
+
+            var response = await _authService.RefreshAsync(
+                request.RefreshToken,
+                ip,
+                userAgent);
+
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Problem(detail: ex.Message, statusCode: 401, title: "Refresh falhou");
+            return Problem(
+                detail: ex.Message,
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Refresh falhou");
         }
     }
 

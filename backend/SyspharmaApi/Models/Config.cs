@@ -22,5 +22,6 @@ public enum ConfigType
 {
     AppOnline = 1,
     AppVersion,
-    ProductionMode
+    ProductionMode,
+    ExpirationDaysAlert
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SyspharmaApi.Context;
+using SyspharmaApi.Contracts.Product;
 using SyspharmaApi.Helpers;
 using SyspharmaApi.Models;
 using System.Net;
@@ -17,6 +18,32 @@ namespace SyspharmaApi.Controllers
         public async Task<ActionResult<IEnumerable<ProductBatch>>> GetProductBatches()
         {
             return await _context.ProductBatches.ToListAsync();
+        }
+
+        [HttpGet("expiringbatches")]
+        public async Task<ActionResult<IEnumerable<ExpiringBatches>>> GetExpiringBatches()
+        {
+            var expiresmaxConfig = await _context.Configs.FindAsync((int)ConfigType.ExpirationDaysAlert);
+            int expiresmax = expiresmaxConfig?.Value ?? 30;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            return await _context.ProductBatches
+                .Where(pb => pb.Expirationdate <= DateOnly.FromDateTime(DateTime.Today.AddDays(expiresmax)))
+                .Join(
+                    _context.Products,
+                    pb => pb.Idproduct,
+                    pr => pr.Idproduct,
+                    (pb, pr) => new ExpiringBatches
+                    (
+                        pr.Idproduct,
+                        pb.Idbatch,
+                        pr.Internalcode,
+                        pr.Description,
+                        pb.Batchcode,
+                        pb.Expirationdate.DayNumber - today.DayNumber
+                    )
+                )
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]
