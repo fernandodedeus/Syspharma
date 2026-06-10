@@ -29,8 +29,11 @@ async function submitLogin() {
   <section class="login-page">
     <form class="card login-card" @submit.prevent="submitLogin">
       <div class="login-heading">
-        <strong>Syspharma</strong>
-        <span>Acesse sua operação</span>
+        <img
+          class="login-logo"
+          src="/syspharma-logo-nova.png"
+          alt="Syspharma"
+        />
       </div>
 
       <label class="login-field" for="email">
@@ -81,11 +84,16 @@ async function submitLogin() {
 
 .login-heading {
   display: grid;
-  gap: 4px;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
 }
 
-.login-heading strong {
-  font-size: 26px;
+.login-logo {
+  width: 280px;
+  max-width: 75%;
+  height: auto;
+  margin: 0 auto;
 }
 
 .login-heading span,

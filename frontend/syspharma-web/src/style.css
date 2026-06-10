@@ -39,8 +39,15 @@ a {
   margin-bottom: 32px;
 }
 
-.brand strong {
-  font-size: 22px;
+.brand {
+  align-items: center;
+  text-align: center;
+}
+
+.brand-logo {
+  width: 170px;
+  max-width: 100%;
+  height: auto;
 }
 
 .brand span {

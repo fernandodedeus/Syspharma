@@ -14,8 +14,12 @@ async function handleLogout() {
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <strong>Syspharma</strong>
-      <span>SaaS Farmacias</span>
+      <img
+        class="brand-logo"
+        src="/syspharma-logo-verde-nova.png"
+        alt="Syspharma"
+      />
+      <span>SaaS Farmácias</span>
     </div>
 
     <nav class="sidebar-nav">
