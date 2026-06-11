@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
@@ -21,5 +22,6 @@ public partial class Supplier
 
     public DateTime Createdat { get; set; }
 
+    [ValidateNever]
     public virtual ICollection<ProductBatch> ProductBatches { get; set; } = new List<ProductBatch>();
 }

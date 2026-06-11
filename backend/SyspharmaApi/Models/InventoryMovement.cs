@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
@@ -17,5 +18,6 @@ public partial class InventoryMovement
 
     public DateTime Datemov { get; set; }
 
+    [ValidateNever]
     public virtual Inventory IdinventoryNavigation { get; set; } = null!;
 }

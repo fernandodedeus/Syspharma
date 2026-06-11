@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
@@ -19,5 +20,6 @@ public partial class Customer
 
     public bool? Active { get; set; }
 
+    [ValidateNever]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
