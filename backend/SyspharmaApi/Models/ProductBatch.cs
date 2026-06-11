@@ -24,6 +24,7 @@ public partial class ProductBatch : DbModel
 
     public DateTime Createdat { get; set; }
 
+
     [ValidateNever]
     public virtual Product IdproductNavigation { get; set; } = null!;
 
