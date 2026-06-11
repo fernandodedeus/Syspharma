@@ -9,6 +9,7 @@ import {
 import PageHeader from '../components/PageHeader.vue';
 import ProdutoForm from '../components/ProdutoForm.vue';
 import ProdutosTable from '../components/ProdutosTable.vue';
+import ConfirmModal from '../components/ConfirmModal.vue';
 
 const produtos = ref([]);
 const busca = ref('');
@@ -16,6 +17,10 @@ const carregando = ref(false);
 const salvando = ref(false);
 const erro = ref('');
 const produtoEmEdicao = ref(null);
+
+// Exclusão de produtos
+const mostrarModalExcluir = ref(false);
+const produtoSelecionado = ref(null);
 
 const produtosFiltrados = computed(() => {
   const termo = busca.value.trim().toLowerCase();
@@ -82,22 +87,37 @@ function editarProduto(produto) {
   produtoEmEdicao.value = produto;
 }
 
-async function excluirProduto(produto) {
-  const confirmar = window.confirm(`Excluir ${produto.nome}?`);
+function abrirModalExcluir(produto) {
 
-  if (!confirmar) {
-    return;
-  }
+  produtoSelecionado.value = produto;
+  mostrarModalExcluir.value = true;
+  
+}
+
+async function confirmarExclusao() {
+
+  const produto = produtoSelecionado.value;
 
   erro.value = '';
 
   try {
+
     await deleteProduct(produto.id);
-    produtos.value = produtos.value.filter((item) => item.id !== produto.id);
+
+    produtos.value = produtos.value.filter(
+      (item) => item.id !== produto.id
+    );
+
+    mostrarModalExcluir.value = false;
+
   } catch {
-    erro.value = 'Não foi possível excluir o produto.';
+
+    erro.value = 'Não foi possível excluir o produto.'
+
   }
+
 }
+
 
 onMounted(carregarProdutos);
 </script>
@@ -148,8 +168,15 @@ onMounted(carregarProdutos);
       v-else
       :produtos="produtosFiltrados"
       @edit="editarProduto"
-      @delete="excluirProduto"
+      @delete="abrirModalExcluir"
     />
+
+    <ConfirmModal
+      :show="mostrarModalExcluir"
+      @cancel="mostrarModalExcluir = false"
+      @confirm="confirmarExclusao"
+    />
+    
   </section>
 </template>
 
