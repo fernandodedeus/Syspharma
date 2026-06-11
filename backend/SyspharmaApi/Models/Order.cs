@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
@@ -29,13 +30,18 @@ public partial class Order
 
     public DateTime Createdat { get; set; }
 
+    [ValidateNever]
     public virtual Customer? IdcustomerNavigation { get; set; }
 
+    [ValidateNever]
     public virtual Store IdstoreNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual User IduserNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
+    [ValidateNever]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }
