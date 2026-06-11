@@ -14,13 +14,18 @@ async function handleLogout() {
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <strong>Syspharma</strong>
-      <span>SaaS Farmacias</span>
+      <img
+        class="brand-logo"
+        src="/syspharma-logo-verde-nova.png"
+        alt="Syspharma"
+      />
+      <span>Olá, {{ auth.user?.name }}</span>
     </div>
 
     <nav class="sidebar-nav">
       <RouterLink to="/">Dashboard</RouterLink>
       <RouterLink to="/produtos">Produtos</RouterLink>
+      <RouterLink to="/validades">Validades</RouterLink>
     </nav>
 
     <div class="sidebar-footer">
