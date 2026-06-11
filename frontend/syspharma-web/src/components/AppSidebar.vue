@@ -19,7 +19,7 @@ async function handleLogout() {
         src="/syspharma-logo-verde-nova.png"
         alt="Syspharma"
       />
-      <span>SaaS Farmácias</span>
+      <span>Olá, {{ auth.user?.name }}</span>
     </div>
 
     <nav class="sidebar-nav">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SyspharmaApi.Models;
 
@@ -23,9 +24,12 @@ public partial class ProductBatch
 
     public DateTime Createdat { get; set; }
 
+    [ValidateNever] // método para dizer ao sistema de validação para ignorar a propriedade, pois o EntityFramework já preenche automaticamente via idproduct
     public virtual Product IdproductNavigation { get; set; } = null!;
 
+    [ValidateNever] // método para dizer ao sistema de validação para ignorar a propriedade, pois o EntityFramework já preenche automaticamente via idproduct
     public virtual Supplier? IdsupplierNavigation { get; set; }
 
+    [ValidateNever] // método para dizer ao sistema de validação para ignorar a propriedade, pois o EntityFramework já preenche automaticamente via idproduct
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }
