@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
@@ -25,9 +26,12 @@ public partial class OrderItem
 
     public string? Notes { get; set; }
 
+    [ValidateNever]
     public virtual ProductBatch? IdbatchNavigation { get; set; }
 
+    [ValidateNever]
     public virtual Order IdorderNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual Product IdproductNavigation { get; set; } = null!;
 }

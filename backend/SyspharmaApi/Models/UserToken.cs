@@ -1,4 +1,6 @@
-﻿namespace SyspharmaApi.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace SyspharmaApi.Models
 {
     public partial class UserToken
     {
@@ -18,6 +20,7 @@
 
         public string? UserAgent { get; set; }
 
+        [ValidateNever]
         public virtual User IduserNavigation { get; set; } = null!;
     }
 }
