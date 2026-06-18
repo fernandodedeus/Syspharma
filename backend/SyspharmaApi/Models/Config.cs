@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
 
-public partial class Config
+public partial class Config : DbModel
 {
     public int Idconfig { get; set; }
 

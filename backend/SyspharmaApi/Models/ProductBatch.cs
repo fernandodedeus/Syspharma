@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SyspharmaApi.Models;
 
-public partial class ProductBatch
+public partial class ProductBatch : DbModel
 {
     public int Idbatch { get; set; }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
 
-public partial class Product
+public partial class Product : DbModel
 {
     public int Idproduct { get; set; }
 

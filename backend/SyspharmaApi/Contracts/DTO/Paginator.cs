@@ -1,6 +1,8 @@
-﻿namespace SyspharmaApi.Contracts.DTO
+﻿using SyspharmaApi.Models;
+
+namespace SyspharmaApi.Contracts.DTO
 {
-    public class Paginator<T>(IEnumerable<T> responseList, int page = 0, int pagesize = 10) where T: class
+    public class Paginator<T>(IEnumerable<T> responseList, int page = 0, int pagesize = 10) where T: DbModel
     {
         public int Page { get; set; } = page;
         public int Pagesize { get; set; } = pagesize;

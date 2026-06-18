@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
 
-public partial class InventoryMovement
+public partial class InventoryMovement : DbModel
 {
     public int IdinventoryMovement { get; set; }
 

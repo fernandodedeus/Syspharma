@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
 
-public partial class Payment
+public partial class Payment : DbModel
 {
     public int Idpayment { get; set; }
 

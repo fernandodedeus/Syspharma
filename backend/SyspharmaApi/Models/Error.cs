@@ -1,6 +1,6 @@
 ﻿namespace SyspharmaApi.Models
 {
-    public class Error
+    public class Error : DbModel
     {
         public int Iderror { get; set; }
         public string? Title { get; set; }

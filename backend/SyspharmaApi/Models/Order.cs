@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SyspharmaApi.Models;
 
-public partial class Order
+public partial class Order : DbModel
 {
     public int Idorder { get; set; }
 

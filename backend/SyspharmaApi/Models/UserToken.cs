@@ -2,7 +2,7 @@
 
 namespace SyspharmaApi.Models
 {
-    public partial class UserToken
+    public partial class UserToken : DbModel
     {
         public int Idusertoken { get; set; }
 
