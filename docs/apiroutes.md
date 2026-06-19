@@ -60,6 +60,10 @@ RESPONSE:
 api/v1/Customer
 GET
 
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
+
 RESPONSE:
 [
    {
@@ -139,6 +143,10 @@ RESPONSE:
 api/v1/Inventory
 GET
 
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
+
 RESPONSE:
 [
    {
@@ -207,6 +215,10 @@ RESPONSE:
 
 api/v1/InventoryMovement
 GET
+
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
 
 RESPONSE:
 [
@@ -281,6 +293,10 @@ RESPONSE:
 
 api/v1/Order
 GET
+
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
 
 RESPONSE:
 [
@@ -386,6 +402,10 @@ RESPONSE:
 api/v1/OrderItem
 GET
 
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
+
 RESPONSE:
 [
    {
@@ -479,6 +499,10 @@ RESPONSE:
 
 api/v1/Payment
 GET
+
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
 
 RESPONSE:
 [
@@ -574,6 +598,10 @@ RESPONSE:
 api/v1/ProductBatch
 GET
 
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
+
 RESPONSE:
 [
    {
@@ -587,6 +615,21 @@ RESPONSE:
       decimal Unitcost,
       DateTime Createdat
    }
+]
+
+api/v1/ProductBatch/expiringbatches
+GET
+
+RESPONSE:
+[
+    {
+        int IdProduct,
+        int IdBatch,
+        string ProductInternalCode,
+        string? Description,
+        string BatchCode,
+        int ExpiresInDays
+    }
 ]
 
 api/v1/ProductBatch/{id}
