@@ -15,9 +15,12 @@ namespace SyspharmaApi.Controllers
         private readonly SyspharmaContext _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<InventoryMovement>>> GetInventoryMovements()
+        public async Task<ActionResult<IEnumerable<InventoryMovement>>> GetInventoryMovements(int page = 0, int pagesize = 10)
         {
-            return await _context.InventoryMovements.ToListAsync();
+            return await _context.InventoryMovements
+                .Skip(page * pagesize)
+                .Take(pagesize)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]

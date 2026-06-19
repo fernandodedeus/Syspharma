@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SyspharmaApi.Context;
-using SyspharmaApi.Contracts.DTO;
 using SyspharmaApi.Helpers;
 using SyspharmaApi.Models;
 using System.Net;
@@ -15,9 +14,12 @@ namespace SyspharmaApi.Controllers
         private readonly SyspharmaContext _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers(int page = 0, int pagesize = 10)
         {
-            return await _context.Customers.ToListAsync();
+            return await _context.Customers
+                .Skip(page * pagesize)
+                .Take(pagesize)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]

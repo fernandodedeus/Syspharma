@@ -15,9 +15,12 @@ namespace SyspharmaApi.Controllers
         private readonly SyspharmaContext _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductBatch>>> GetProductBatches()
+        public async Task<ActionResult<IEnumerable<ProductBatch>>> GetProductBatches(int page = 0, int pagesize = 10)
         {
-            return await _context.ProductBatches.ToListAsync();
+            return await _context.ProductBatches
+                .Skip(page * pagesize)
+                .Take(pagesize)
+                .ToListAsync();
         }
 
         [HttpGet("expiringbatches")]

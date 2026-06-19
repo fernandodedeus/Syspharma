@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SyspharmaApi.Context;
 using SyspharmaApi.Helpers;
@@ -15,9 +16,12 @@ namespace SyspharmaApi.Controllers
         private readonly SyspharmaContext _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Inventory>>> GetInventories()
+        public async Task<ActionResult<IEnumerable<Inventory>>> GetInventories(int page = 0, int pagesize = 10)
         {
-            return await _context.Inventories.ToListAsync();
+            return await _context.Inventories
+                .Skip(page * pagesize)
+                .Take(pagesize)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]
