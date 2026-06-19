@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SyspharmaApi.Context;
+using SyspharmaApi.Contracts.DTO;
 using SyspharmaApi.Helpers;
 using SyspharmaApi.Models;
 using System.Net;
