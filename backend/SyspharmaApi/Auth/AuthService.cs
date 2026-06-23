@@ -93,6 +93,9 @@ public sealed class AuthService(
         if (!_passwordHasher.Verify(request.Oldpass, user.Pass))
             throw new UnauthorizedAccessException("A senha antiga está incorreta");
 
+        user.Pass = _passwordHasher.Hash(request.Newpass);
+        await _db.SaveChangesAsync();
+
         return await GenerateAuthResponse(user, info);
     }
 
