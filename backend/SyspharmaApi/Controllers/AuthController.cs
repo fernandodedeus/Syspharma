@@ -35,6 +35,18 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(request.Password))
+                throw new InvalidOperationException("A senha não pode ser vazia");
+
+            if (request.Password.Length < 6)
+                throw new InvalidOperationException("A senha não pode ter menos que 6 caracteres");
+
+            if (request.Password.Length > 50)
+                throw new InvalidOperationException("A senha não pode ter mais que 50 caracteres");
+
+            if (request.Email.Length > 300)
+                throw new InvalidOperationException("O email não pode ter mais que 300 caracteres");
+
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers.UserAgent.ToString();
             var response = await _authService.RegisterAsync(request, ip, userAgent);
@@ -42,7 +54,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         }
         catch (InvalidOperationException ex)
         {
-            return Problem(detail: ex.Message, statusCode: 400, title: "Erro no cadastro");
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest, title: "Erro no cadastro");
         }
     }
 
@@ -54,6 +66,12 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         try
         {
+            if (request.Password.Length > 50)
+                throw new UnauthorizedAccessException("A senha não pode ter mais que 50 caracteres");
+
+            if (request.Email.Length > 300)
+                throw new UnauthorizedAccessException("O email não pode ter mais que 300 caracteres");
+
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers.UserAgent.ToString();
             var response = await _authService.LoginAsync(request, ip, userAgent);
@@ -61,7 +79,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Problem(detail: ex.Message, statusCode: 401, title: "Autenticacao falhou");
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status401Unauthorized, title: "Autenticacao falhou");
         }
     }
 
