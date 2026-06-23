@@ -82,7 +82,7 @@ public sealed class AuthService(
             .FirstOrDefaultAsync(u => u.Iduser == existingToken.Iduser)
             ?? throw new UnauthorizedAccessException("Usuário não identificado.");
 
-        return await GenerateAuthResponse(user, info);
+        return await GenerateAuthResponseRevokingTokens(user, info);
     }    
 
     public async Task<AuthResponse> SwitchPassAsync(SwitchPassRequest request, RequestInfo info)
@@ -96,10 +96,10 @@ public sealed class AuthService(
         user.Pass = _passwordHasher.Hash(request.Newpass);
         await _db.SaveChangesAsync();
 
-        return await GenerateAuthResponse(user, info);
+        return await GenerateAuthResponseRevokingTokens(user, info);
     }
 
-    private async Task<AuthResponse> GenerateAuthResponse(User user, RequestInfo info)
+    private async Task<AuthResponse> GenerateAuthResponseRevokingTokens(User user, RequestInfo info)
     {
         await RevokeAllTokensAsync(user.Iduser);
 
