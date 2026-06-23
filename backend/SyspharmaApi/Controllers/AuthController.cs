@@ -22,21 +22,16 @@ namespace SyspharmaApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService, ILogger<AuthController> logger, IHttpContextAccessor httpContextAccessor) : ControllerBase
 {
-    private readonly IAuthService _authService;
-    private readonly ILogger<AuthController> _logger;
-    private readonly RequestInfo requestInfo;
+    private readonly IAuthService _authService = authService;
+    private readonly ILogger<AuthController> _logger = logger;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
-    {
-        _authService = authService;
-        _logger = logger;
-
-        requestInfo = new(
-            Ip: HttpContext.Connection.RemoteIpAddress?.ToString(),
-            UserAgent: Request.Headers.UserAgent.ToString());
-    }
+    private RequestInfo RequestInfo => new(
+        Ip: _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+        UserAgent: _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString()
+    );
 
     [AllowAnonymous]
     [HttpPost("register")]
@@ -46,6 +41,8 @@ public class AuthController : ControllerBase
     {
         try
         {
+            var requestInfo = RequestInfo;
+
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new InvalidOperationException("A senha não pode ser vazia");
 
@@ -75,6 +72,8 @@ public class AuthController : ControllerBase
     {
         try
         {
+            var requestInfo = RequestInfo;
+
             if (request.Password.Length > 50)
                 throw new UnauthorizedAccessException("A senha não pode ter mais que 50 caracteres");
 
@@ -98,6 +97,8 @@ public class AuthController : ControllerBase
     {
         try
         {
+            var requestInfo = RequestInfo;
+
             var response = await _authService.RefreshAsync(request.RefreshToken, requestInfo);
             return Ok(response);
         }
@@ -125,6 +126,8 @@ public class AuthController : ControllerBase
     {
         try
         {
+            var requestInfo = RequestInfo;
+
             if (string.IsNullOrWhiteSpace(request.Oldpass) || request.Oldpass.Length < 6)
                 throw new InvalidOperationException("Senha antiga inválida");
 

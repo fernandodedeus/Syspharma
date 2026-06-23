@@ -139,6 +139,7 @@ public class Program
                 });
             });
 
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
