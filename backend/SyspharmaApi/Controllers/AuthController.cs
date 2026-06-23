@@ -22,10 +22,21 @@ namespace SyspharmaApi.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService = authService;
-    private readonly ILogger<AuthController> _logger = logger;
+    private readonly IAuthService _authService;
+    private readonly ILogger<AuthController> _logger;
+    private readonly RequestInfo requestInfo;
+
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    {
+        _authService = authService;
+        _logger = logger;
+
+        requestInfo = new(
+            Ip: HttpContext.Connection.RemoteIpAddress?.ToString(),
+            UserAgent: Request.Headers.UserAgent.ToString());
+    }
 
     [AllowAnonymous]
     [HttpPost("register")]
@@ -47,9 +58,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             if (request.Email.Length > 300)
                 throw new InvalidOperationException("O email não pode ter mais que 300 caracteres");
 
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var userAgent = Request.Headers.UserAgent.ToString();
-            var response = await _authService.RegisterAsync(request, ip, userAgent);
+            var response = await _authService.RegisterAsync(request, requestInfo);
             return StatusCode(StatusCodes.Status201Created, response);
         }
         catch (InvalidOperationException ex)
@@ -72,9 +81,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             if (request.Email.Length > 300)
                 throw new UnauthorizedAccessException("O email não pode ter mais que 300 caracteres");
 
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var userAgent = Request.Headers.UserAgent.ToString();
-            var response = await _authService.LoginAsync(request, ip, userAgent);
+            var response = await _authService.LoginAsync(request, requestInfo);
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)
@@ -91,14 +98,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         try
         {
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var userAgent = Request.Headers.UserAgent.ToString();
-
-            var response = await _authService.RefreshAsync(
-                request.RefreshToken,
-                ip,
-                userAgent);
-
+            var response = await _authService.RefreshAsync(request.RefreshToken, requestInfo);
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)
@@ -117,6 +117,34 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
     {
         await _authService.LogoutAsync(request.RefreshToken);
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("switchpass")]
+    public async Task<IActionResult> SwitchPassword([FromBody] SwitchPassRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.Oldpass) || request.Oldpass.Length < 6)
+                throw new InvalidOperationException("Senha antiga inválida");
+
+            if (string.IsNullOrWhiteSpace(request.Newpass) || request.Newpass.Length < 6)
+                throw new InvalidOperationException("A nova senha precisa ter mais que 6 caracteres");
+
+            if (string.Equals(request.Newpass.Trim(), request.Oldpass.Trim()))
+                throw new InvalidOperationException("A nova senha não pode ser igual a antiga");
+
+            var response = await _authService.SwitchPassAsync(request, requestInfo);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest, title: "Falha na troca de senha");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status401Unauthorized, title: "Troca de senha não autorizada");
+        }
     }
 
     [Authorize]

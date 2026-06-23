@@ -18,7 +18,7 @@ public sealed class AuthService(
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly ITokenService _tokenService = tokenService;
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, string? ip, string? userAgent)
+    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, RequestInfo info)
     {
         await ValidateEmailUniqueAsync(request.Email);
 
@@ -37,10 +37,10 @@ public sealed class AuthService(
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("New user registered: {UserId} {Email}", user.Iduser, user.Email);
-        return await GenerateAuthResponseAsync(user, ip, userAgent);
+        return await GenerateAuthResponseAsync(user, info);
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request, string? ip, string? userAgent)
+    public async Task<AuthResponse> LoginAsync(LoginRequest request, RequestInfo info)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.Equals(request.Email, StringComparison.InvariantCultureIgnoreCase));
 
@@ -62,10 +62,10 @@ public sealed class AuthService(
         await _db.SaveChangesAsync();
 
         _logger.LogInformation("Login completed: {UserId} {Email}", user.Iduser, user.Email);
-        return await GenerateAuthResponseAsync(user, ip, userAgent);
+        return await GenerateAuthResponseAsync(user, info);
     }
 
-    public async Task<AuthResponse> RefreshAsync(string refreshToken, string? ip, string? userAgent)
+    public async Task<AuthResponse> RefreshAsync(string refreshToken, RequestInfo info)
     {
         var tokenHash = _tokenService.HashRefreshToken(refreshToken);
 
@@ -82,19 +82,35 @@ public sealed class AuthService(
             .FirstOrDefaultAsync(u => u.Iduser == existingToken.Iduser)
             ?? throw new UnauthorizedAccessException("Usuário não identificado.");
 
-        await RevokeAllTokensAsync(existingToken.Iduser);
+        return await GenerateAuthResponse(user, info);
+    }    
+
+    public async Task<AuthResponse> SwitchPassAsync(SwitchPassRequest request, RequestInfo info)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Iduser == request.Iduser) 
+            ?? throw new InvalidOperationException("Usuário não identificado");
+
+        if (!_passwordHasher.Verify(request.Oldpass, user.Pass))
+            throw new UnauthorizedAccessException("A senha antiga está incorreta");
+
+        return await GenerateAuthResponse(user, info);
+    }
+
+    private async Task<AuthResponse> GenerateAuthResponse(User user, RequestInfo info)
+    {
+        await RevokeAllTokensAsync(user.Iduser);
 
         var newPlainToken = _tokenService.GenerateRefreshToken();
         var newTokenHash = _tokenService.HashRefreshToken(newPlainToken);
 
         var newRefreshToken = new UserToken
         {
-            Iduser = existingToken.Iduser,
+            Iduser = user.Iduser,
             Token = newTokenHash,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenExpirationDays),
-            OriginIp = ip,
-            UserAgent = userAgent
+            OriginIp = info.Ip,
+            UserAgent = info.UserAgent
         };
 
         _db.UserTokens.Add(newRefreshToken);
@@ -145,7 +161,7 @@ public sealed class AuthService(
         }
     }
 
-    private async Task<AuthResponse> GenerateAuthResponseAsync(User user, string? ip, string? userAgent)
+    private async Task<AuthResponse> GenerateAuthResponseAsync(User user, RequestInfo info)
     {
         var accessToken = _tokenService.GenerateAccessToken(user);
         var refreshToken = _tokenService.GenerateRefreshToken();
@@ -157,8 +173,8 @@ public sealed class AuthService(
             Token = refreshTokenHash,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(RefreshTokenExpirationDays),
-            OriginIp = ip,
-            UserAgent = userAgent
+            OriginIp = info.Ip,
+            UserAgent = info.UserAgent
         };
 
         _db.UserTokens.Add(refreshTokenEntity);
