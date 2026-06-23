@@ -29,7 +29,6 @@ async function handleLogout() {
     </nav>
 
     <div class="sidebar-footer">
-      <span v-if="auth.user">{{ auth.user.name }}</span>
       <button class="logout-button" type="button" @click="handleLogout">
         Sair
       </button>
