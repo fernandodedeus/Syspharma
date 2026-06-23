@@ -79,6 +79,13 @@ REQUEST:
 }
 
 RESPONSE:
+{
+    string AcessToken,
+    string RefreshToken,
+    int ExpiresIn,
+    int UserId,
+    string FullName
+}
 
 api/v1/Auth/me
 GET
