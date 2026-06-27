@@ -24,6 +24,8 @@ public partial class User : DbModel
 
     public DateTime Createdat { get; set; }
 
+    public string? Profilephotopath { get; set; }
+
     [ValidateNever]
     public virtual Store? IdstoreNavigation { get; set; }
 

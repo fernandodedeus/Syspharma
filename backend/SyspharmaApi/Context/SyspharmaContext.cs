@@ -485,6 +485,7 @@ public partial class SyspharmaContext : DbContext
             entity.Property(e => e.Phone)
                 .HasMaxLength(45)
                 .HasColumnName("phone");
+            entity.Property(e => e.Profilephotopath).HasColumnName("profilephotopath");
 
             entity.HasOne(d => d.IdstoreNavigation).WithMany(p => p.Users)
                 .HasForeignKey(d => d.Idstore)
