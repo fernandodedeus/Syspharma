@@ -3,6 +3,9 @@ import DashboardPage from '../pages/DashboardPage.vue';
 import LoginPage from '../pages/LoginPage.vue';
 import ProdutosPage from '../pages/ProdutosPage.vue';
 import ValidadesPage from '../pages/ValidadesPage.vue';
+import FuncionariosPage from '../pages/FuncionariosPage.vue';
+import EditarPerfilPage from '../pages/EditarPerfilPage.vue';
+import TrocarSenhaPage from '../pages/TrocarSenhaPage.vue';
 import { useAuthStore } from '../stores/authStore';
 
 export const router = createRouter({
@@ -24,6 +27,18 @@ export const router = createRouter({
     {
       path: '/validades',
       component: ValidadesPage
+    },
+    {
+      path: '/cadastro/funcionarios',
+      component: FuncionariosPage
+    },
+    {
+      path: '/perfil',
+      component: EditarPerfilPage
+    },
+    {
+      path: '/trocar-senha',
+      component: TrocarSenhaPage
     }
   ]
 });

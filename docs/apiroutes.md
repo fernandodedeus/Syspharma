@@ -15,6 +15,15 @@ REQUEST:
     string? Document
 }
 
+RESPONSE:
+{
+    string AcessToken,
+    string RefreshToken,
+    int ExpiresIn,
+    int UserId,
+    string FullName
+}
+
 api/v1/Auth/login
 POST
 
@@ -22,6 +31,15 @@ REQUEST:
 {
     string Email,
     string Password,
+}
+
+RESPONSE:
+{
+    string AcessToken,
+    string RefreshToken,
+    int ExpiresIn,
+    int UserId,
+    string FullName
 }
 
 api/v1/Auth/refresh
@@ -32,12 +50,41 @@ REQUEST:
     string RefreshToken
 }
 
+RESPONSE:
+{
+    string AcessToken,
+    string RefreshToken,
+    int ExpiresIn,
+    int UserId,
+    string FullName
+}
+
 api/v1/Auth/logout
 POST
 
 REQUEST:
 {
     string RefreshToken
+}
+
+api/v1/Auth/switchpass
+[NEED ACCESS TOKEN]
+POST
+
+REQUEST:
+{
+    int Iduser,
+    string Oldpass,
+    string Newpass
+}
+
+RESPONSE:
+{
+    string AcessToken,
+    string RefreshToken,
+    int ExpiresIn,
+    int UserId,
+    string FullName
 }
 
 api/v1/Auth/me
