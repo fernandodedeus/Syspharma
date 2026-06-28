@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SyspharmaApi.Context;
+using SyspharmaApi.Contracts.User;
 using SyspharmaApi.Helpers;
 using SyspharmaApi.Models;
 using System.Net;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SyspharmaApi.Controllers
 {
@@ -87,6 +89,57 @@ namespace SyspharmaApi.Controllers
 
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+
+        [HttpPatch("{id}/photo")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ChangeProfilePhoto(int id, [FromForm] ChangeProfilePhotoRequest request)
+        {
+            var image = request.Image;
+
+            if (image == null || image.Length == 0)
+                return BadRequest("Não enviado nenhum arquivo");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Iduser == id);
+
+            if (user is null)
+                return NotFound("Não foi encontrado o usuário para a alteração");
+
+            var validExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+
+            if (!validExtensions.Contains(extension))
+                return BadRequest("Formato de imagem inválido. Os formatos permitidos são: jpg, jpeg, png e webp");
+
+            var imgfolder = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "imgs");
+
+            if (!Directory.Exists(imgfolder))
+                Directory.CreateDirectory(imgfolder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filepath = Path.Combine(imgfolder, fileName);
+
+
+            using (var stream = new FileStream(filepath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Profilephotopath))
+            {
+                var oldProfilePhoto = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "..", "..",
+                    user.Profilephotopath);
+
+                if (System.IO.File.Exists(oldProfilePhoto))
+                    System.IO.File.Delete(oldProfilePhoto);
+            }
+
+            user.Profilephotopath = Path.Combine("imgs", fileName).Replace("\\", "/");
+            await _context.SaveChangesAsync();
+            return Ok(user.Profilephotopath);
         }
 
 

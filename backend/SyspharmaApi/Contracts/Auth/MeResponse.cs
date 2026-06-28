@@ -8,4 +8,5 @@ public sealed record MeResponse(
     string? Phone,
     string? Document,
     bool Active,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    string? ProfilePhotoPath);

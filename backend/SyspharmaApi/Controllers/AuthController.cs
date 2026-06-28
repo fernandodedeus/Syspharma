@@ -172,6 +172,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             Phone: user.Phone,
             Active: user.Active,
             Document: user.Cpf,
-            CreatedAt: user.Createdat));
+            CreatedAt: user.Createdat,
+            ProfilePhotoPath: user.Profilephotopath));
     }
 }
