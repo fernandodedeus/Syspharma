@@ -6,7 +6,6 @@ using SyspharmaApi.Contracts.User;
 using SyspharmaApi.Helpers;
 using SyspharmaApi.Models;
 using System.Net;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SyspharmaApi.Controllers
 {
@@ -17,12 +16,33 @@ namespace SyspharmaApi.Controllers
         private readonly SyspharmaContext _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers(int page = 0, int pagesize = 10)
+        public async Task<IActionResult> GetUsers(int page = 0, int pagesize = 10)
         {
-            return await _context.Users
+            var users = await _context.Users
                 .Skip(page * pagesize)
                 .Take(pagesize)
                 .ToListAsync();
+
+            if (User.IsInRole(UserRole.Admin.ToString()))
+            {
+                return Ok(users.Select(u => new UserDto(
+                    Iduser: u.Iduser,
+                    Idstore: u.Idstore,
+                    Role: u.Role,
+                    Name: u.Name,
+                    Email: u.Email,
+                    Cpf: u.Cpf,
+                    Phone: u.Phone,
+                    Active: u.Active,
+                    Createdat: u.Createdat,
+                    Profilephotopath: u.Profilephotopath)));
+            }
+
+            return Ok(users.Select(u => new BaseUserDTO(
+                Iduser: u.Iduser, 
+                Name: u.Name, 
+                ProfilePhotoPath: u.Profilephotopath, 
+                Active: u.Active)));
         }
 
         [HttpGet("{id}")]
