@@ -167,6 +167,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
         return Ok(new MeResponse(
             Id: user.Iduser,
             Idstore: user.Idstore,
+            Role: user.Role,
             FullName: user.Name,
             Email: user.Email,
             Phone: user.Phone,
