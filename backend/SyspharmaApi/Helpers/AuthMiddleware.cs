@@ -71,7 +71,7 @@ namespace SyspharmaApi.Helpers
                     return;
                 }
 
-                if (role == "Admin")
+                if (role == UserRole.Admin.ToString())
                 {
                     await _next(context);
                     return;
@@ -85,27 +85,24 @@ namespace SyspharmaApi.Helpers
                     return;
                 }
 
-                if (role == "User")
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Iduser == id) ?? throw new Exception("Usuário não encontrado");
+
+                _ = await db.UserTokens.FirstOrDefaultAsync(t => t.Iduser == user.Iduser && !t.Revoked)
+                    ?? throw new Exception("Senha expirada. Por favor, faça o login novamente");
+
+                if (!user.Active)
                 {
-                    var user = await db.Users.FirstOrDefaultAsync(u => u.Iduser == id) ?? throw new Exception("Usuário não encontrado");
+                    string msg = "Cadastro Bloqueado";
 
-                    _ = await db.UserTokens.FirstOrDefaultAsync(t => t.Iduser == user.Iduser && !t.Revoked)
-                        ?? throw new Exception("Senha expirada. Por favor, faça o login novamente");
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync(msg);
+                    var userTokenList = db.UserTokens.Where(u => u.Iduser == id).ForEachAsync(u => db.UserTokens.Remove(u));
+                    await db.SaveChangesAsync();
 
-                    if (!user.Active)
-                    {
-                        string msg = "Cadastro Bloqueado";
-
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsync(msg);
-                        var userTokenList = db.UserTokens.Where(u => u.Iduser == id).ForEachAsync(u => db.UserTokens.Remove(u));
-                        await db.SaveChangesAsync();
-
-                        return;
-                    }
-
-                    context.Items["User"] = user;
+                    return;
                 }
+
+                context.Items["User"] = user;
             }
             catch (Exception ex)
             {

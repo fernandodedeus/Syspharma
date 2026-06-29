@@ -10,6 +10,8 @@ public partial class User : DbModel
 
     public int? Idstore { get; set; }
 
+    public int Role { get; set; }
+
     public string Name { get; set; } = null!;
 
     public string Email { get; set; } = null!;
@@ -34,4 +36,12 @@ public partial class User : DbModel
 
     [ValidateNever]
     public virtual ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
+}
+
+public enum UserRole
+{
+    Admin = 1,
+    Salesperson,
+    Pharmacist,
+    Cashier
 }

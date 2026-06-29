@@ -22,7 +22,7 @@ public sealed class TokenService(IOptions<JwtOptions> jwtOptions) : ITokenServic
             new Claim(JwtRegisteredClaimNames.Sub, user.Iduser.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.Role, ((UserRole)user.Role).ToString()),
             new Claim("name", user.Name)
         };
 
