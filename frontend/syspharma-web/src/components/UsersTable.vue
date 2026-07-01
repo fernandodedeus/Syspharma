@@ -86,7 +86,7 @@ function gravatarUrl(email) {
                 type="button"
                 @click="emit('edit', usuario)"
               >
-                Editar
+                Edita
               </button>
 
               <button
