@@ -990,18 +990,35 @@ RESPONSE:
 api/v1/User
 GET
 
+Optional Params:
+page: int (default = 0)
+pagesize: int (default = 10)
+
+### IF ROLE = ADMIN
 RESPONSE:
 [
    {
-      int Iduser,
-      int? Idstore,
-      string Name,
-      string Email,
-      string? Cpf,
-      string Pass,
-      string? Phone,
-      bool Active,
-      DateTime Createdat
+    int Iduser,
+    int? Idstore, 
+    int Role,
+    string Name,
+    string Email,
+    string? Cpf,
+    string? Phone, 
+    bool Active,
+    DateTime Createdat,
+    string? Profilephotopath 
+   }
+]
+
+### IF ROLE != ADMIN
+RESPONSE:
+[
+   {
+    int Iduser,
+    string Name,
+    string? ProfilePhotoPath,
+    bool Active
    }
 ]
 
