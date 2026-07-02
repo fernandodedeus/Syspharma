@@ -65,3 +65,17 @@ export async function switchPassword(oldpass, newpass) {
 export async function deleteUser(id) {
   await api.delete(`/User/${id}`);
 }
+
+// cria um FormData com o arquivo selecionado e envia via PATCH para o endpoint do backend. O header multipart/form-data é necessário para envio de arquivos.
+export async function uploadPhoto(userId, file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const { data } = await api.patch(`/User/${userId}/photo`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+  return data; // retorna o caminho relativo ex: "imgs/foto.jpg"
+}

@@ -2,7 +2,7 @@
 import { reactive, ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
-import { updateUser } from '../api/users';
+import { updateUser, uploadPhoto } from '../api/users';
 import FormField from '../components/FormField.vue';
 import PageHeader from '../components/PageHeader.vue';
 
@@ -10,9 +10,11 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const salvando = ref(false);
+const enviandoFoto = ref(false);
 const erro = ref('');
+const erroFoto = ref('');
 const sucesso = ref(false);
-const gravatarUrl = ref('');
+const sucessoFoto = ref(false);
 
 const form = reactive({
   nome: '',
@@ -25,19 +27,6 @@ const erros = reactive({
   email: ''
 });
 
-// Gera a URL do Gravatar com SHA-256
-async function gerarGravatar(email) {
-  if (!email) return;
-
-  const encoded = new TextEncoder().encode(email.trim().toLowerCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hex = Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-
-  gravatarUrl.value = `https://www.gravatar.com/avatar/${hex}?d=mp&s=128`;
-}
-
 // Inicial do nome para fallback do avatar
 const inicialNome = computed(() => {
   return form.nome?.charAt(0).toUpperCase() ?? '?';
@@ -46,7 +35,6 @@ const inicialNome = computed(() => {
 function validarFormulario() {
   erros.nome = form.nome.trim() ? '' : 'Informe seu nome completo.';
   erros.email = form.email.trim() ? '' : 'Informe seu email.';
-
   return Object.values(erros).every((e) => e === '');
 }
 
@@ -66,13 +54,11 @@ async function handleSubmit() {
       ativo: true
     });
 
-    // Atualiza o nome no store para refletir na sidebar imediatamente
+    // Atualiza o nome no store imediatamente
     auth.user.name = form.nome.trim();
+    auth.user.email = form.email.trim();
 
     sucesso.value = true;
-
-    // Regera o Gravatar caso o email tenha mudado
-    await gerarGravatar(form.email.trim());
 
     setTimeout(() => {
       sucesso.value = false;
@@ -87,14 +73,58 @@ async function handleSubmit() {
   }
 }
 
-onMounted(async () => {
-  // Preenche o formulário com os dados atuais do usuário logado
+// Abre o seletor de arquivo ao clicar no avatar
+function abrirSeletorFoto() {
+  document.getElementById('inputFoto').click();
+}
+
+// Chamado quando o usuário seleciona uma foto
+async function handleFotoSelecionada(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // Valida o tipo do arquivo
+  if (!file.type.startsWith('image/')) {
+    erroFoto.value = 'Selecione um arquivo de imagem válido.';
+    return;
+  }
+
+  // Valida o tamanho máximo de 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    erroFoto.value = 'A imagem deve ter no máximo 5MB.';
+    return;
+  }
+
+  enviandoFoto.value = true;
+  erroFoto.value = '';
+  sucessoFoto.value = false;
+
+  try {
+    const path = await uploadPhoto(auth.user.id, file);
+
+    // Atualiza a foto no store para refletir imediatamente
+    auth.updatePhoto(path);
+
+    sucessoFoto.value = true;
+
+    setTimeout(() => {
+      sucessoFoto.value = false;
+    }, 3000);
+  } catch {
+    erroFoto.value = 'Não foi possível enviar a foto. Tente novamente.';
+  } finally {
+    enviandoFoto.value = false;
+
+    // Limpa o input para permitir selecionar o mesmo arquivo novamente
+    event.target.value = '';
+  }
+}
+
+onMounted(() => {
   if (auth.user) {
     form.nome = auth.user.name ?? '';
     form.email = auth.user.email ?? '';
     form.telefone = auth.user.phone ?? '';
-
-    await gerarGravatar(auth.user.email);
   }
 });
 </script>
@@ -109,37 +139,74 @@ onMounted(async () => {
     <div class="page-content">
       <div class="card perfil-card">
 
-        <!-- Avatar centralizado -->
+        <!-- Avatar com botão de upload -->
         <div class="avatar-section">
           <div class="avatar-wrapper">
             <div class="avatar">
               <img
-                v-if="gravatarUrl"
-                :src="gravatarUrl"
+                v-if="auth.photoUrl"
+                :src="auth.photoUrl"
                 :alt="form.nome"
                 class="avatar-img"
-                @error="gravatarUrl = ''"
               />
               <span v-else>{{ inicialNome }}</span>
             </div>
+
+            <!-- Botão de alterar foto sobreposto ao avatar -->
+            <button
+              class="avatar-edit-btn"
+              type="button"
+              :disabled="enviandoFoto"
+              @click="abrirSeletorFoto"
+            >
+              <svg
+                v-if="!enviandoFoto"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span v-else class="spinner" />
+            </button>
+
+            <!-- Input de arquivo oculto -->
+            <input
+              id="inputFoto"
+              type="file"
+              accept="image/*"
+              class="input-foto-oculto"
+              @change="handleFotoSelecionada"
+            />
           </div>
 
           <div class="avatar-info">
             <span class="avatar-nome">{{ form.nome }}</span>
-            <a
-              class="avatar-gravatar-link"
-              href="https://gravatar.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Alterar foto via Gravatar
-            </a>
+            <span class="avatar-hint">
+              {{ enviandoFoto ? 'Enviando foto...' : 'Clique no avatar para alterar a foto' }}
+            </span>
           </div>
         </div>
 
+        <!-- Feedback da foto -->
+        <p v-if="erroFoto" class="state-message error">
+          {{ erroFoto }}
+        </p>
+
+        <p v-if="sucessoFoto" class="state-message success">
+          Foto atualizada com sucesso!
+        </p>
+
         <div class="divider" />
 
-        <!-- Mensagens de feedback -->
+        <!-- Feedback do formulário -->
         <p v-if="sucesso" class="state-message success">
           Perfil atualizado com sucesso!
         </p>
@@ -212,6 +279,7 @@ onMounted(async () => {
 
 .avatar-wrapper {
   position: relative;
+  width: fit-content;
 }
 
 .avatar {
@@ -235,6 +303,53 @@ onMounted(async () => {
   object-fit: cover;
 }
 
+/* Botão de editar foto sobreposto */
+.avatar-edit-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #1f8a70;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.avatar-edit-btn:hover {
+  background: #19745f;
+}
+
+.avatar-edit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Spinner de loading */
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Input de arquivo oculto */
+.input-foto-oculto {
+  display: none;
+}
+
 .avatar-info {
   display: flex;
   flex-direction: column;
@@ -248,14 +363,9 @@ onMounted(async () => {
   color: #172033;
 }
 
-.avatar-gravatar-link {
+.avatar-hint {
   font-size: 12px;
-  color: #1f8a70;
-  text-decoration: underline;
-}
-
-.avatar-gravatar-link:hover {
-  color: #19745f;
+  color: #64748b;
 }
 
 .divider {

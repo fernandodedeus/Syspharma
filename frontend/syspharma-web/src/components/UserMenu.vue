@@ -8,25 +8,7 @@ const auth = useAuthStore();
 
 const menuAberto = ref(false);
 
-// Gera a URL do Gravatar usando SHA-256 via Web Crypto API
-const gravatarUrl = ref('');
-
-// usa a API nativa do navegador para gerar o hash SHA-256 do email e criar a URL do Gravatar
-async function gerarGravatar(email) {
-  if (!email) return;
-
-  const encoded = new TextEncoder().encode(email.trim().toLowerCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
-  const hex = Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-
-  // d=mp → avatar padrão "pessoa" quando não tem Gravatar cadastrado
-  // s=64 → tamanho 64px
-  gravatarUrl.value = `https://www.gravatar.com/avatar/${hex}?d=mp&s=64`;
-}
-
-// Primeira letra do nome para fallback caso o Gravatar não carregue
+// Inicial do nome para fallback caso não tenha foto
 const inicialNome = computed(() => {
   return auth.user?.name?.charAt(0).toUpperCase() ?? '?';
 });
@@ -52,10 +34,6 @@ function navegarPara(rota) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickFora);
-
-  if (auth.user?.email) {
-    gerarGravatar(auth.user.email);
-  }
 });
 
 onUnmounted(() => {
@@ -74,11 +52,10 @@ onUnmounted(() => {
     >
       <div class="avatar">
         <img
-          v-if="gravatarUrl"
-          :src="gravatarUrl"
+          v-if="auth.photoUrl"
+          :src="auth.photoUrl"
           :alt="auth.user?.name"
           class="avatar-img"
-          @error="gravatarUrl = ''"
         />
         <span v-else>{{ inicialNome }}</span>
       </div>
@@ -88,7 +65,6 @@ onUnmounted(() => {
         <span class="user-role">Funcionário</span>
       </div>
 
-      <!-- Ícone de chevron que rotaciona quando o menu abre -->
       <svg
         :class="['chevron', { rotacionado: menuAberto }]"
         xmlns="http://www.w3.org/2000/svg"
@@ -110,11 +86,10 @@ onUnmounted(() => {
       <div class="dropdown-header">
         <div class="avatar avatar-lg">
           <img
-            v-if="gravatarUrl"
-            :src="gravatarUrl"
+            v-if="auth.photoUrl"
+            :src="auth.photoUrl"
             :alt="auth.user?.name"
             class="avatar-img"
-            @error="gravatarUrl = ''"
           />
           <span v-else>{{ inicialNome }}</span>
         </div>
@@ -193,7 +168,6 @@ onUnmounted(() => {
   background: #22405a;
 }
 
-/* Avatar */
 .avatar {
   width: 36px;
   height: 36px;
@@ -243,7 +217,6 @@ onUnmounted(() => {
   color: #aeb9c7;
 }
 
-/* Chevron */
 .chevron {
   color: #aeb9c7;
   flex-shrink: 0;
@@ -254,7 +227,6 @@ onUnmounted(() => {
   transform: rotate(180deg);
 }
 
-/* Dropdown */
 .user-menu-dropdown {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -304,7 +276,7 @@ onUnmounted(() => {
   color: #172033;
   font-size: 14px;
   font-weight: 500;
-  padding: 10px 10px;
+  padding: 10px;
   border-radius: 8px;
   text-align: left;
   cursor: pointer;
