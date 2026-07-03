@@ -1,0 +1,73 @@
+[33m8868790[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge da Branch testes para a MAIN
+[33m68fecda[m[33m ([m[1;31morigin/BaseTestes[m[33m, [m[1;32mBaseTestes[m[33m)[m Merge branch 'BaseTestes' of https://github.com/fernandodedeus/Syspharma into BaseTestes
+[33m34855ff[m fix: Correção da implementação do upload de imagem de perfil.
+[33m168a865[m Adicionado no backend o atributo ValidateNever, que ignora os 3 métodos para a inserção de Lotes de produto, também foi alterado a frase da SideBar, agora dando Olá ao usuário.
+[33me933194[m[33m ([m[1;32magents/merge-main-to-basetestes-fix-conflicts[m[33m)[m fix: Implementação de upload de fotos, removendo o Gravatar
+[33m6523822[m fix: correção do commit teste
+[33mf584898[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m6a144b7[m fix: commit teste
+[33m41c581c[m Update apiroutes.md
+[33mf786fe4[m Ajustada a rota api/v1/User [GET] para retornar a listagem dos usuários com dados visívieis de acordo com a ROLE do requerente #36
+[33m263d8ae[m Ajustada a rota api/v1/User [GET] para retornar a listagem dos usuários de acordo com a ROLE do requerente
+[33m90c0807[m Criado controle de tipo de usuário #37 Ajustada geração do token para pegar a role correspondente
+[33m2c90450[m Criada a rota api/v1/User/{id}/photo para alterar a foto de perfil do usuário a partir do PATCH de um multipart/form-data e retornando o caminho em que a foto foi salva. #34 Ajustada a rota api/v1/User/me para retornar o caminho da foto #34
+[33m9da8f32[m Ajustado o banco e o context adicionando uma coluna nova para guardar o caminho da foto da imagem do perfil #35
+[33md1015d4[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m1e21db9[m feat: cadastro de funcionários, perfil e menu de usuário
+[33me48e5e4[m Update apiroutes.md
+[33m7eec118[m Update apiroutes.md
+[33m6b857b7[m corrigido nome de função em ambiguidade
+[33m29271be[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33me7f7060[m Ajustado para salvar senha nova no banco #32
+[33m3ca9f09[m Ajustado o requestInfo para não dar exceção de acesso nulo no construtor
+[33m3333832[m Criada a rota de troca de senha #32 Modificadas algumas funções de AUTH para reaproveitamento de informações
+[33mde7bd53[m Adicionadas validações de email e senha nas rotas de login e register
+[33md04033e[m fix Remoção do segundo nome de Usuario
+[33m66fde83[m Update apiroutes.md
+[33m342130a[m Adicionado controle de retorno GET com paginação vindo de querystring. #26
+[33md259167[m Removido o Paginator --> desnecessário. Vou usar o próprio método GET padrão sem encapsulamento extra
+[33m4d20c19[m Criado um contrato para identificar as classes-modelo do DB
+[33m56fdf4f[m Criado o contrato genérico para retornos com paginação
+[33mcba80a3[m fix Atualização na página de Dashboard, adicionei constantes que nos tras os lotes próximos ao vencimento e vencidos, ordenando do mais urgente pro menos urgente, além disso, ele filtra apenas pelo periodo de 30 dias ate a validade.
+[33mc2330f7[m fix Migração do protocolo HTTP como padrão para HTTPS, necessário instalar o vite mkcerts plugins
+[33m5c53d50[m fix Retorno ao modelo antigo do http.js
+[33mb1d7d15[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m98cb5c1[m fix mudança na estrutura https.js
+[33m8237c99[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m8751e8e[m fix Implementação do botão de confirmação de exclusão de produtos estilizado.
+[33m626ca42[m Adicionada a annotation [ValidationNever] em todas as referência de FK do EF. Mais detalhes no issue #30
+[33m1469f9a[m Adicionado no backend o atributo ValidateNever, que ignora os 3 métodos para a inserção de Lotes de produto, também foi alterado a frase da SideBar, agora dando Olá ao usuário.
+[33me641f94[m Adicionado no backend o atributo ValidateNever, que ignora os 3 métodos para a inserção de Lotes de produto, também foi alterado a frase da SideBar, agora dando Olá ao usuário.
+[33m57c6b2d[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33mb9fd5ae[m fix CRIADOS src/api/batches.js          ← funções para lotes (buscar, criar) src/api/suppliers.js        ← buscar fornecedores para o dropdown src/components/LoteForm.vue ← formulário de cadastro de lote src/components/LotesTable.vue ← tabela de lotes vencendo com badges src/pages/ValidadesPage.vue ← página completa unindo tudo
+[33m8841124[m Criado endpoint de alertas de validade. - Criada uma config auxiliar.
+[33mc5ef85f[m fix Adicionei as logos no sistema e nas pastas, todas as logos estão disponíveis em "imgs" e as que estão usadas (e as que foram testadas também) foram adicionadas em "frontend > public", além disso, também foi configurado o favicon do sistema utilizando uma versão mais minimalista da logo principal.
+[33mda932d7[m excluído o .vscode extra
+[33ma2891db[m Removido o package-lock que foi adicionado sem necessidade
+[33mafe9534[m Adicionada imagem da logo
+[33m1c31cf0[m Merge pull request #21 from fernandodedeus/BaseTestes
+[33mda3f3cd[m Correção de erros de Português
+[33m00b6852[m Merge pull request #18 from fernandodedeus/BaseTestes
+[33m98ee5a1[m Integra o frontend Vue com a API Syspharma.
+[33m20b01ba[m - Nomes de classes corrigidos. - Adicionada documentação da API
+[33mdac8db6[m Corrigido o nome da classe ProductBatch
+[33m4d0dc9f[m Correção -> permitir acesso a rotas de login e refresh sem o acess token.
+[33m99d65bd[m Correção -> salvar alterações de revogação de refresh token
+[33m307385b[m Feita uma correção para impedir que o usuário possua vários refresh tokens válidos no banco. Alterado para ter sempre somente 1 token válido por login.
+[33me27f3fb[m Corrigida a autenticação JWT
+[33mde6a44a[m Criado o controle de autenticação JWT e hasher de password
+[33m904e51b[m Criado esquema de validação Global de Exceção. Removidas as validações de exceções pontuais
+[33mf82a16a[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m384e210[m feat: melhorar produtos e dashboard com mocks e validação
+[33m407dbe5[m Ajustado no Program.cs da API para: - Utilizar o middleware criado - Utilizar a autenticação JWT
+[33mb230b79[m Criado e configurado o middleware Configurado o banco + ef context para refresh tokens dos usuários Adicionadas configs novas que impactam no middleware
+[33mdd3044a[m - Criados os controllers-base. - Aprovados no smoke test - Ajustado o errologger para pegar sempre do horário UTC
+[33mad703e4[m feat: preparar tela de produtos com dados mockados e busca
+[33m54bcfaa[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33m39e3d19[m Ajustes no context
+[33md324283[m refactor: componentizar sidebar, headers e cards do dashboard
+[33m915ddbe[m Merge branch 'main' of https://github.com/fernandodedeus/Syspharma
+[33me9da1fa[m Início da estrutura da API
+[33mde527d9[m Criamos o componente AppSidebar.vue para separar o menu lateral do App.vue. Atualizamos o App.vue para importar e usar esse componente. Alteramos o CSS de nav para .sidebar-nav, deixando o estilo mais específico. Rodamos o projeto com npm.cmd run dev porque o PowerShell bloqueia npm.ps1.
+[33me36c645[m Adição de comentários
+[33m223509d[m Primeiro commit do projeto tmj
