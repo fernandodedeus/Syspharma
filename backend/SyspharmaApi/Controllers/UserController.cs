@@ -132,7 +132,7 @@ namespace SyspharmaApi.Controllers
             if (!validExtensions.Contains(extension))
                 return BadRequest("Formato de imagem inválido. Os formatos permitidos são: jpg, jpeg, png e webp");
 
-            var imgfolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imgs");
+            var imgfolder = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "imgs");
 
             if (!Directory.Exists(imgfolder))
                 Directory.CreateDirectory(imgfolder);
@@ -150,7 +150,7 @@ namespace SyspharmaApi.Controllers
             {
                 var oldProfilePhoto = Path.Combine(
                     Directory.GetCurrentDirectory(),
-                    "wwwroot",
+                    "..", "..",
                     user.Profilephotopath);
 
                 if (System.IO.File.Exists(oldProfilePhoto))

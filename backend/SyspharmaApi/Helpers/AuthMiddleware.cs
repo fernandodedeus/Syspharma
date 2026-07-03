@@ -29,8 +29,7 @@ namespace SyspharmaApi.Helpers
                 "/Auth/refresh",
                 "/Auth/register",
                 "/swagger",
-                "/Pagbank",
-                "/imgs"
+                "/Pagbank"
             ];
 
             if (path is not null && pathWhiteList.FirstOrDefault(p => path.Contains(p, StringComparison.InvariantCultureIgnoreCase)) is not null)

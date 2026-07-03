@@ -155,7 +155,6 @@ public class Program
             app.UseExceptionHandler();
             app.UseSerilogRequestLogging();
             app.UseCors("Frontend");
-            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMiddleware<AuthMiddleware>();
