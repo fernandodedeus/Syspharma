@@ -21,17 +21,26 @@ function readStoredUser() {
   }
 }
 
-// Monta a URL completa da foto a partir do caminho relativo
+function extractPhotoPath(payload) {
+  if (!payload) return null;
+
+  return payload.profilePhotoPath ?? payload.photo ?? payload.photoUrl ?? null;
+}
+
+// Monta a URL completa da foto a partir do caminho relativo ou de uma URL já completa.
 // ex: "imgs/foto.jpg" → "https://localhost:7267/imgs/foto.jpg"
 export function buildPhotoUrl(path) {
   if (!path) return null;
 
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
   const base = import.meta.env.VITE_API_URL ?? 'https://localhost:7267/api/v1';
+  const serverBase = base.replace(/\/api\/v\d+(\/)?$/i, '').replace(/\/$/, '');
+  const normalizedPath = String(path).replace(/^\/+/, '').replace(/^api\/v\d+\//i, '');
 
-  // Remove o "/api/v1" do final para pegar só a base do servidor
-  const serverBase = base.replace('/api/v1', '');
-
-  return `${serverBase}/${path}`;
+  return `${serverBase}/${normalizedPath}`;
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -53,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
       id: response.userId,
       name: response.fullName,
       email: response.email ?? '',
-      photo: response.profilePhotoPath ?? null
+      photo: extractPhotoPath(response)
     };
 
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken.value);
@@ -75,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
   function updatePhoto(path) {
     if (!user.value) return;
 
-    user.value.photo = path;
+    user.value.photo = extractPhotoPath({ profilePhotoPath: path });
     localStorage.setItem(USER_KEY, JSON.stringify(user.value));
   }
 
@@ -87,7 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (user.value) {
         user.value.name = data.fullName;
         user.value.email = data.email;
-        user.value.photo = data.profilePhotoPath ?? null;
+        user.value.photo = extractPhotoPath(data);
         localStorage.setItem(USER_KEY, JSON.stringify(user.value));
       }
     } catch {

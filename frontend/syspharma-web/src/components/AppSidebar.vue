@@ -9,48 +9,13 @@ const cadastroAberto = ref(false);
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <img
-        class="brand-logo"
-        src="/syspharma-logo-verde-nova.png"
-        alt="Syspharma"
-      />
+      <strong>Syspharma</strong>
+      <span>SaaS Farmacias</span>
     </div>
 
     <nav class="sidebar-nav">
       <RouterLink to="/">Dashboard</RouterLink>
       <RouterLink to="/produtos">Produtos</RouterLink>
-      <RouterLink to="/validades">Validades</RouterLink>
-
-      <!-- Submenu Cadastro -->
-      <div class="nav-group">
-        <button
-          class="nav-group-trigger"
-          type="button"
-          @click="cadastroAberto = !cadastroAberto"
-        >
-          <span>Cadastro</span>
-          <svg
-            :class="['chevron', { rotacionado: cadastroAberto }]"
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-
-        <div v-if="cadastroAberto" class="nav-group-items">
-          <RouterLink to="/cadastro/funcionarios">
-            Funcionários
-          </RouterLink>
-        </div>
-      </div>
     </nav>
 
     <!-- Card de perfil substituindo o botão de sair -->
