@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import UserMenu from './UserMenu.vue';
 
-// controla se o submenu "Cadastro" está aberto ou fechado, o chevon vai rotacionar de acordo com o estado
 const cadastroAberto = ref(false);
+const produtosAberto = ref(false);
 </script>
 
 <template>
@@ -18,8 +18,36 @@ const cadastroAberto = ref(false);
 
     <nav class="sidebar-nav">
       <RouterLink to="/">Dashboard</RouterLink>
-      <RouterLink to="/produtos">Produtos</RouterLink>
-      <RouterLink to="/validades">Validades</RouterLink>
+
+      <!-- Submenu Produtos -->
+      <div class="nav-group">
+        <button
+          class="nav-group-trigger"
+          type="button"
+          @click="produtosAberto = !produtosAberto"
+        >
+          <span>Produtos</span>
+          <svg
+            :class="['chevron', { rotacionado: produtosAberto }]"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <div v-if="produtosAberto" class="nav-group-items">
+          <RouterLink to="/produtos">Produtos</RouterLink>
+          <RouterLink to="/lotes">Lotes</RouterLink>
+        </div>
+      </div>
 
       <!-- Submenu Cadastro -->
       <div class="nav-group">
@@ -46,20 +74,16 @@ const cadastroAberto = ref(false);
         </button>
 
         <div v-if="cadastroAberto" class="nav-group-items">
-          <RouterLink to="/cadastro/funcionarios">
-            Funcionários
-          </RouterLink>
+          <RouterLink to="/cadastro/funcionarios">Funcionários</RouterLink>
         </div>
       </div>
     </nav>
 
-    <!-- Card de perfil substituindo o botão de sair -->
     <UserMenu />
   </aside>
 </template>
 
 <style scoped>
-/* Submenu */
 .nav-group {
   display: flex;
   flex-direction: column;
@@ -123,7 +147,6 @@ const cadastroAberto = ref(false);
   background: #fff;
 }
 
-/* Chevron do submenu */
 .chevron {
   color: #aeb9c7;
   flex-shrink: 0;

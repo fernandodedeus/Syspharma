@@ -133,7 +133,7 @@ async function salvarLote(dadosLote) {
 <template>
   <section>
     <PageHeader
-      title="Validades"
+      title="Lotes"
       subtitle="Cadastro de lotes e controle de vencimentos"
     />
 

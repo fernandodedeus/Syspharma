@@ -25,7 +25,7 @@ export const router = createRouter({
       component: ProdutosPage
     },
     {
-      path: '/validades',
+      path: '/lotes',
       component: ValidadesPage
     },
     {
