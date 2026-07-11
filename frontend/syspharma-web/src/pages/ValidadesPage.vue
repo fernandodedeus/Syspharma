@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { getExpiringBatches, createBatch } from '../api/batches';
 import { getProducts } from '../api/products';
 import { getSuppliers } from '../api/suppliers';
@@ -19,9 +19,62 @@ const salvando = ref(false);
 const erroSalvamento = ref('');
 const sucessoSalvamento = ref(false);
 
-// ─── carregamento inicial ──────────────────────────────────────────
+// ─── busca e filtros ───────────────────────────────────────────────
+const busca = ref('');
+const filtroAtivo = ref('todos');
 
-// Carrega os lotes vencendo para a tabela
+const filtros = [
+  { valor: 'todos',    label: 'Todos' },
+  { valor: 'vencendo', label: 'À vencer',              descricao: 'Até 30 dias' },
+  { valor: 'atencao',  label: 'Próximos à validade',   descricao: '31 a 90 dias' },
+  { valor: 'ok',       label: 'Longe do vencimento',   descricao: 'Acima de 90 dias' }
+];
+
+// Aplica busca e filtro de cor sobre os lotes carregados
+const lotesFiltrados = computed(() => {
+  let resultado = lotes.value;
+
+  // Filtro de busca por nome do produto ou código do lote
+  const termo = busca.value.trim().toLowerCase();
+  if (termo) {
+    resultado = resultado.filter((lote) => {
+      const nomeProduto = (lote.description ?? lote.productInternalCode ?? '').toLowerCase();
+      const codigoLote = (lote.batchCode ?? '').toLowerCase();
+      const codigoProduto = (lote.productInternalCode ?? '').toLowerCase();
+
+      return (
+        nomeProduto.includes(termo) ||
+        codigoLote.includes(termo) ||
+        codigoProduto.includes(termo)
+      );
+    });
+  }
+
+  // Filtro de cor com base nos dias para vencer
+  if (filtroAtivo.value !== 'todos') {
+    resultado = resultado.filter((lote) => {
+      const dias = lote.expiresInDays;
+
+      if (filtroAtivo.value === 'vencendo') return dias <= 30;
+      if (filtroAtivo.value === 'atencao')  return dias > 30 && dias <= 90;
+      if (filtroAtivo.value === 'ok')       return dias > 90;
+
+      return true;
+    });
+  }
+
+  return resultado;
+});
+
+// Conta lotes por categoria para exibir nos botões de filtro
+const contagens = computed(() => ({
+  todos:    lotes.value.length,
+  vencendo: lotes.value.filter((l) => l.expiresInDays <= 30).length,
+  atencao:  lotes.value.filter((l) => l.expiresInDays > 30 && l.expiresInDays <= 90).length,
+  ok:       lotes.value.filter((l) => l.expiresInDays > 90).length
+}));
+
+// ─── carregamento inicial ──────────────────────────────────────────
 async function carregarLotes() {
   carregando.value = true;
   erroCarregamento.value = '';
@@ -35,7 +88,6 @@ async function carregarLotes() {
   }
 }
 
-// Carrega produtos e fornecedores para os dropdowns do formulário
 async function carregarDadosFormulario() {
   try {
     const [listaProdutos, listaFornecedores] = await Promise.all([
@@ -46,19 +98,16 @@ async function carregarDadosFormulario() {
     produtos.value = listaProdutos;
     fornecedores.value = listaFornecedores;
   } catch {
-    // Se falhar, os dropdowns ficam vazios mas não bloqueamos a página
     console.error('Erro ao carregar dados do formulário.');
   }
 }
 
-// Ao montar a página, carregamos tudo em paralelo
 onMounted(() => {
   carregarLotes();
   carregarDadosFormulario();
 });
 
 // ─── ações ────────────────────────────────────────────────────────
-
 async function salvarLote(dadosLote) {
   salvando.value = true;
   erroSalvamento.value = '';
@@ -66,13 +115,10 @@ async function salvarLote(dadosLote) {
 
   try {
     await createBatch(dadosLote);
-
-    // Após salvar, recarregamos a tabela para refletir o novo lote
     await carregarLotes();
 
     sucessoSalvamento.value = true;
 
-    // Remove a mensagem de sucesso após 4 segundos
     setTimeout(() => {
       sucessoSalvamento.value = false;
     }, 4000);
@@ -113,6 +159,35 @@ async function salvarLote(dadosLote) {
       <span>Lotes próximos do vencimento</span>
     </div>
 
+    <!-- Barra de busca e filtros -->
+    <div class="card toolbar">
+      <label class="search-field" for="buscaLote">
+        <span>Buscar lote</span>
+        <input
+          id="buscaLote"
+          v-model="busca"
+          type="search"
+          placeholder="Digite o nome do produto ou código do lote"
+        />
+      </label>
+
+      <div class="filtros">
+        <span class="filtros-label">Filtrar por situação:</span>
+        <div class="filtros-botoes">
+          <button
+            v-for="filtro in filtros"
+            :key="filtro.valor"
+            :class="['filtro-btn', filtro.valor, { ativo: filtroAtivo === filtro.valor }]"
+            type="button"
+            @click="filtroAtivo = filtro.valor"
+          >
+            {{ filtro.label }}
+            <span class="filtro-count">{{ contagens[filtro.valor] }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Estados da tabela -->
     <p v-if="carregando" class="state-message">
       Carregando lotes...
@@ -122,11 +197,11 @@ async function salvarLote(dadosLote) {
       {{ erroCarregamento }}
     </p>
 
-    <p v-else-if="!lotes.length" class="state-message">
-      Nenhum lote próximo do vencimento encontrado.
+    <p v-else-if="!lotesFiltrados.length" class="state-message">
+      Nenhum lote encontrado para os filtros aplicados.
     </p>
 
-    <LotesTable v-else :lotes="lotes" />
+    <LotesTable v-else :lotes="lotesFiltrados" />
 
   </section>
 </template>
@@ -154,6 +229,118 @@ async function salvarLote(dadosLote) {
   white-space: nowrap;
 }
 
+/* Toolbar */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-field span {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.search-field input {
+  max-width: 480px;
+}
+
+/* Filtros */
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtros-label {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filtros-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filtro-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.filtro-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Filtro ativo — todos */
+.filtro-btn.todos.ativo {
+  background: #172033;
+  color: #fff;
+  border-color: #172033;
+}
+
+/* Filtro ativo — vencendo (vermelho) */
+.filtro-btn.vencendo {
+  color: #991b1b;
+}
+
+.filtro-btn.vencendo.ativo {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+
+/* Filtro ativo — atenção (amarelo) */
+.filtro-btn.atencao {
+  color: #92400e;
+}
+
+.filtro-btn.atencao.ativo {
+  background: #fefce8;
+  border-color: #eab308;
+  color: #92400e;
+}
+
+/* Filtro ativo — ok (verde) */
+.filtro-btn.ok {
+  color: #166534;
+}
+
+.filtro-btn.ok.ativo {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #166534;
+}
+
+/* Contador dentro do botão */
+.filtro-count {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Feedback */
 .state-message {
   margin: 0 0 18px;
   background: #fff;
@@ -173,5 +360,16 @@ async function salvarLote(dadosLote) {
   border-color: #bbf7d0;
   background: #f0fdf4;
   color: #166534;
+}
+
+@media (max-width: 800px) {
+  .filtros-botoes {
+    flex-direction: column;
+  }
+
+  .filtro-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 </style>

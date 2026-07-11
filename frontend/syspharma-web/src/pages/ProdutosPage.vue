@@ -69,8 +69,15 @@ async function salvarProduto(produto) {
 
     const produtoCriado = await createProduct(productWithDefaults(produto));
     produtos.value = [produtoCriado, ...produtos.value];
-  } catch {
-    erro.value = 'Não foi possível salvar o produto.';
+  } catch (e) {
+    const mensagemErro = e.response?.data?.message ?? e.response?.data?.detail;
+
+    if (mensagemErro?.toLowerCase().includes('código interno')) {
+      erro.value = 'Este código interno já está cadastrado. Verifique e tente novamente.';
+      return;
+    }
+
+    erro.value = mensagemErro ?? 'Não foi possível salvar o produto.';
   } finally {
     salvando.value = false;
   }
@@ -110,10 +117,8 @@ async function confirmarExclusao() {
 
     mostrarModalExcluir.value = false;
 
-  } catch {
-
-    erro.value = 'Não foi possível excluir o produto.'
-
+  } catch (e) {
+    erro.value = 'Não foi possível excluir o produto.';   
   }
 
 }
