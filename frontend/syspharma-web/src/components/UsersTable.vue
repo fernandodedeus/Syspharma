@@ -1,5 +1,10 @@
 <script setup>
+import { computed } from 'vue';
 import StatusBadge from './StatusBadge.vue';
+import { useAuthStore } from '../stores/authStore';
+import { buildPhotoUrl } from '../stores/authStore';
+
+const auth = useAuthStore();
 
 defineProps({
   usuarios: {
@@ -10,37 +15,19 @@ defineProps({
 
 const emit = defineEmits(['edit', 'delete']);
 
-// Retorna o tom do badge com base na situação do usuário
 function obterTomSituacao(ativo) {
   return ativo ? 'ok' : 'low';
 }
 
-// Retorna o texto do badge com base na situação do usuário
 function obterTextoSituacao(ativo) {
   return ativo ? 'Ativo' : 'Inativo';
 }
 
-// Formata a data de criação para o padrão brasileiro
 function formatarData(dataIso) {
   if (!dataIso) return '—';
   const [data] = dataIso.split('T');
   const [ano, mes, dia] = data.split('-');
   return `${dia}/${mes}/${ano}`;
-}
-
-// Gera a URL do Gravatar a partir do email
-function gravatarUrl(email) {
-  if (!email) return null;
-
-  // Gravatar exige o email em MD5 — usamos a Web Crypto API do navegador
-  const encoded = new TextEncoder().encode(email.trim().toLowerCase());
-
-  return crypto.subtle.digest('SHA-256', encoded).then((hash) => {
-    const hex = Array.from(new Uint8Array(hash))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-    return `https://www.gravatar.com/avatar/${hex}?d=mp&s=32`;
-  });
 }
 </script>
 
@@ -50,12 +37,12 @@ function gravatarUrl(email) {
       <thead>
         <tr>
           <th>Funcionário</th>
-          <th>Email</th>
-          <th>CPF</th>
-          <th>Telefone</th>
+          <th v-if="auth.isAdmin">Email</th>
+          <th v-if="auth.isAdmin">CPF</th>
+          <th v-if="auth.isAdmin">Telefone</th>
           <th>Situação</th>
-          <th>Cadastrado em</th>
-          <th>Ações</th>
+          <th v-if="auth.isAdmin">Cadastrado em</th>
+          <th v-if="auth.isAdmin">Ações</th>
         </tr>
       </thead>
 
@@ -63,23 +50,32 @@ function gravatarUrl(email) {
         <tr v-for="usuario in usuarios" :key="usuario.id">
           <td>
             <div class="user-cell">
-              <!-- Avatar via Gravatar com fallback para iniciais -->
               <div class="avatar">
-                {{ usuario.nome?.charAt(0).toUpperCase() }}
+                <img
+                  v-if="buildPhotoUrl(usuario.foto)"
+                  :src="buildPhotoUrl(usuario.foto)"
+                  :alt="usuario.nome"
+                  class="avatar-img"
+                />
+                <span v-else>{{ usuario.nome?.charAt(0).toUpperCase() }}</span>
               </div>
               <span>{{ usuario.nome }}</span>
             </div>
           </td>
-          <td>{{ usuario.email }}</td>
-          <td>{{ usuario.cpf || '—' }}</td>
-          <td>{{ usuario.telefone || '—' }}</td>
+
+          <td v-if="auth.isAdmin">{{ usuario.email || '—' }}</td>
+          <td v-if="auth.isAdmin">{{ usuario.cpf || '—' }}</td>
+          <td v-if="auth.isAdmin">{{ usuario.telefone || '—' }}</td>
+
           <td>
             <StatusBadge :tone="obterTomSituacao(usuario.ativo)">
               {{ obterTextoSituacao(usuario.ativo) }}
             </StatusBadge>
           </td>
-          <td>{{ formatarData(usuario.criadoEm) }}</td>
-          <td>
+
+          <td v-if="auth.isAdmin">{{ formatarData(usuario.criadoEm) }}</td>
+
+          <td v-if="auth.isAdmin">
             <div class="table-actions">
               <button
                 class="action-button secondary"
@@ -137,7 +133,6 @@ tbody tr:hover {
   gap: 10px;
 }
 
-/* Avatar com inicial do nome — fallback simples sem depender de imagem */
 .avatar {
   width: 32px;
   height: 32px;
@@ -150,6 +145,13 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .table-actions {

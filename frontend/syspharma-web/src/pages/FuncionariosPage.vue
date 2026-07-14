@@ -1,10 +1,13 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { getUsers, createUser, updateUser, deleteUser } from '../api/users.js';
-import { getStores } from '../api/stores.js';
+import { getUsers, createUser, updateUser, deleteUser } from '../api/users';
+import { getStores } from '../api/stores';
+import { useAuthStore } from '../stores/authStore';
 import PageHeader from '../components/PageHeader.vue';
 import UserForm from '../components/UserForm.vue';
 import UsersTable from '../components/UsersTable.vue';
+
+const auth = useAuthStore();
 
 const usuarios = ref([]);
 const lojas = ref([]);
@@ -22,7 +25,7 @@ const usuariosFiltrados = computed(() => {
   return usuarios.value.filter((usuario) => {
     return (
       usuario.nome.toLowerCase().includes(termo) ||
-      usuario.email.toLowerCase().includes(termo) ||
+      (usuario.email ?? '').toLowerCase().includes(termo) ||
       (usuario.cpf ?? '').toLowerCase().includes(termo)
     );
   });
@@ -49,7 +52,6 @@ async function carregarLojas() {
   }
 }
 
-// trata o erro forma mais clara, se retornar erro, mostra a mensagem especifica inves de uma generica
 async function salvarUsuario(dados) {
   salvando.value = true;
   erro.value = '';
@@ -102,7 +104,11 @@ async function excluirUsuario(usuario) {
 
 onMounted(() => {
   carregarUsuarios();
-  carregarLojas();
+
+  // Lojas só precisam ser carregadas para admins
+  if (auth.isAdmin) {
+    carregarLojas();
+  }
 });
 </script>
 
@@ -113,17 +119,20 @@ onMounted(() => {
       subtitle="Cadastro e gerenciamento de funcionários"
     />
 
-    <p v-if="usuarioEmEdicao" class="edit-message">
-      Editando <strong>{{ usuarioEmEdicao.nome }}</strong>. Preencha o formulário e clique em Atualizar.
-    </p>
+    <!-- Formulário visível apenas para admins -->
+    <template v-if="auth.isAdmin">
+      <p v-if="usuarioEmEdicao" class="edit-message">
+        Editando <strong>{{ usuarioEmEdicao.nome }}</strong>. Preencha o formulário e clique em Atualizar.
+      </p>
 
-    <UserForm
-      :lojas="lojas"
-      :loading="salvando"
-      :initial-user="usuarioEmEdicao"
-      @submit="salvarUsuario"
-      @cancel="usuarioEmEdicao = null"
-    />
+      <UserForm
+        :lojas="lojas"
+        :loading="salvando"
+        :initial-user="usuarioEmEdicao"
+        @submit="salvarUsuario"
+        @cancel="usuarioEmEdicao = null"
+      />
+    </template>
 
     <p v-if="erro" class="state-message error">
       {{ erro }}

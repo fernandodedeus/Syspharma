@@ -42,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref('');
 
   const isAuthenticated = computed(() => Boolean(accessToken.value));
+  const isAdmin = computed(() => user.value?.role === 1 );
 
   // Getter para a URL completa da foto do usuário logado
   const photoUrl = computed(() => buildPhotoUrl(user.value?.photo));
@@ -88,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value.name = data.fullName;
         user.value.email = data.email;
         user.value.photo = data.profilePhotoPath ?? null;
+        user.value.role = data.role ?? null;
         localStorage.setItem(USER_KEY, JSON.stringify(user.value));
       }
     } catch {
@@ -134,6 +136,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading,
     error,
     isAuthenticated,
+    isAdmin,
     photoUrl,
     login,
     logout,

@@ -1,16 +1,30 @@
 import { api } from './http';
 
 // essa função mapeia os dados do usuário recebidos da API para o formato utilizado na aplicação
+// detecta automaticamente se é resposta de admin (todos os campos) ou usuário padrão (nome e foto apenas)
 export function mapUserFromApi(user) {
+  // Contrato admin — retorna todos os campos
+  if (user.role !== undefined) {
+    return {
+      id: user.iduser,
+      idLoja: user.idstore ?? null,
+      role: user.role ?? null,
+      nome: user.name,
+      email: user.email ?? '',
+      cpf: user.cpf ?? '',
+      telefone: user.phone ?? '',
+      ativo: user.active,
+      foto: user.profilephotopath ?? null,
+      criadoEm: user.createdat
+    };
+  }
+
+  // Contrato usuário padrão — retorna apenas nome e foto
   return {
     id: user.iduser,
-    idLoja: user.idstore ?? null,
     nome: user.name,
-    email: user.email,
-    cpf: user.cpf ?? '',
-    telefone: user.phone ?? '',
-    ativo: user.active,
-    criadoEm: user.createdat
+    foto: user.profilePhotoPath ?? user.profilephotopath ?? null,
+    ativo: user.active
   };
 }
 
