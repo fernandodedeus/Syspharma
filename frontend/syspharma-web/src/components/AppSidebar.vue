@@ -18,7 +18,8 @@ const produtosAberto = ref(false);
 
     <nav class="sidebar-nav">
       <RouterLink to="/">Dashboard</RouterLink>
-
+      <RouterLink to="/notas-fiscais">NF-e</RouterLink>
+      
       <!-- Submenu Produtos -->
       <div class="nav-group">
         <button

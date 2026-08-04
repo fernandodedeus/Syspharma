@@ -7,6 +7,7 @@ import FuncionariosPage from '../pages/FuncionariosPage.vue';
 import EditarPerfilPage from '../pages/EditarPerfilPage.vue';
 import TrocarSenhaPage from '../pages/TrocarSenhaPage.vue';
 import { useAuthStore } from '../stores/authStore';
+import NotasFiscaisPage from '../pages/NotasFiscaisPage.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -39,6 +40,10 @@ export const router = createRouter({
     {
       path: '/trocar-senha',
       component: TrocarSenhaPage
+    },
+    {
+      path: '/notas-fiscais',
+      component: NotasFiscaisPage
     }
   ]
 });
