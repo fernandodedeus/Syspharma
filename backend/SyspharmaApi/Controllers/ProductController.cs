@@ -39,6 +39,12 @@ namespace SyspharmaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
+            var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Internalcode == product.Internalcode);
+            if(existingProduct is not null)
+            {
+                return BadRequest($"Já foi cadastrado o produto {existingProduct.Description} com o código '{existingProduct.Internalcode}'");
+            }
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
